@@ -1,0 +1,9 @@
+show = drun
+location = 2          # right side of the screen
+width = 600
+height = 300
+always_show = true
+no_actions = true
+hide_scroll = true
+allow_markup = true
+columns = 1
