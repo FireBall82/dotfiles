@@ -1,0 +1,32 @@
+window {
+  background-color: rgba(46, 52, 64, 0.9);      /* Nordic base0 */
+  border: 2px solid rgba(76, 86, 106, 0.9);     /* subtle border */
+  border-radius: 20px;
+  margin: 10px;
+  font-family: "JetBrainsMono Nerd Font", sans-serif;
+  font-size: 16px;
+}
+
+#input {
+  margin: 10px;
+  padding: 10px;
+  background-color: rgba(59, 66, 82, 1);      /* Nordic base1 */
+  color: #D8DEE9;                               /* Nordic snow1 */
+  border-radius: 12px;
+  border: none;
+}
+
+#entry {
+  padding: 10px;
+  margin: 4px 10px;
+  background-color: transparent;
+  color: #D8DEE9;                               /* Nordic snow1 */
+  border-radius: 10px;
+}
+
+#entry:selected {
+  background-color: rgba(76, 86, 106, 0.5);     /* Nordic base3 */
+  color: #ECEFF4;                               /* Nordic snow2 */
+  border-radius: 4px;
+}
+
