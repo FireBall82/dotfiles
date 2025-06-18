@@ -57,7 +57,7 @@
     # Optionally, you may need to select the appropriate driver version for your specific GPU.
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
-  #nvidia prime config
+  #Nvidia prime config
   hardware.nvidia.prime = {
   #Offload(better power consumption)
     offload = {
@@ -114,7 +114,7 @@
   services.printing.enable = true;
 
   # Enable sound with pipewire.
-  hardware.pulseaudio.enable = false;
+  services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
