@@ -2,12 +2,12 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, stable, lib, pkgs, ... }:
-
+{ config, inputs, stable, lib, pkgs, ... }:
 {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      (import ./hyprland-plugins.nix{inherit config pkgs lib inputs ;})
     ];
 
   # Bootloader.
@@ -113,7 +113,7 @@
   # Enable CUPS to print documents.
   services.printing.enable = true;
   # Enable sound with pipewire.
-  hardware.pulseaudio.enable = false;
+  services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -138,7 +138,6 @@
     packages = with pkgs; [
       kdePackages.kate
       kdePackages.kolourpaint
-    #  thunderbird
     ];
   };
 
@@ -147,10 +146,10 @@
   #Install steam
   programs.steam.enable = true;
   #Hyprland
-  programs.hyprland = {
+   programs.hyprland = {
     enable = true;
     xwayland.enable = true;
-};
+  };
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
   # List packages installed in system profile. To search, run:
@@ -193,6 +192,7 @@ gccgo14
 w3m
 stable.brightnessctl
 git
+ollama
 mako
 clipse
 wl-clipboard
@@ -223,6 +223,6 @@ wl-clipboard
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "25.11"; # Did you read the comment?
+  system.stateVersion = "24.05"; # Did you read the comment?
 
 }
