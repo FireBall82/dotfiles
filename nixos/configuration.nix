@@ -150,6 +150,12 @@
     enable = true;
     xwayland.enable = true;
   };
+  environment.sessionVariables = {
+  #Hint electron apps to use wayland
+  NIXOS_OZONE_WL = "1";
+  #Cursor fix
+  WLR_NO_HARDWARE_CURSORS = "1";
+};
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
   # List packages installed in system profile. To search, run:
@@ -169,6 +175,16 @@ rpm
 cmatrix
 stable.vlc
 wpsoffice
+#hyprland plugins dependencies
+#-------
+cairo
+cpio
+meson
+gcc
+pango
+gtk4
+cmake
+#-------
 tor
 lshw
 cava
