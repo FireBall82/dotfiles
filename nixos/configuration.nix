@@ -25,9 +25,17 @@
     enable = true;
   };
   #Nvidia driver
-  services.xserver.videoDrivers = ["nvidia" "modesetting"];
+  services.xserver.videoDrivers = ["nvidia" "modesetting" "intel"];
+  services.power-profiles-daemon.enable = false;
+  services.tlp = {
+    enable = true;
+    settings = {
+      INTEL_GPU_MIN_FREQ_ON_AC = "600";
+      INTEL_GPU_MIN_FREQ_ON_BAT = "400";
+    };
+};
   #nvidia config
-    hardware.nvidia = {
+  hardware.nvidia = {
 
     # Modesetting is required.
     modesetting.enable = true;
@@ -51,7 +59,7 @@
     open = false;
 
     # Enable the Nvidia settings menu,
-	# accessible via `nvidia-settings`.
+    # accessible via `nvidia-settings`.
     nvidiaSettings = true;
 
     # Optionally, you may need to select the appropriate driver version for your specific GPU.
@@ -93,8 +101,8 @@
 
   # Enable the X11 windowing system.
   # You can disable this if you're only using the Wayland session.
-  services.xserver.enable = true;
-  #Required by X11
+  services.xserver.enable = false;
+  #Required by networking
   security.polkit.enable = true;
   # Enable the KDE Plasma Desktop Environment.
   services.desktopManager.plasma6.enable = true;  
@@ -151,10 +159,10 @@
     xwayland.enable = true;
   };
   environment.sessionVariables = {
-  #Hint electron apps to use wayland
-  NIXOS_OZONE_WL = "1";
   #Cursor fix
   WLR_NO_HARDWARE_CURSORS = "1";
+  #Monitor fix
+  WLR_DRM_DEVICES="/dev/dri/card2";
 };
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
@@ -239,6 +247,6 @@ wl-clipboard
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "24.05"; # Did you read the comment?
+  system.stateVersion = "24.11"; # Did you read the comment?
 
 }
