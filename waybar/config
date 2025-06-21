@@ -58,11 +58,11 @@
             "critical": 10
         },
         "tooltip": false,
-        "on-click": "2"
     },  "clock": {
     "tooltip": true,
     "format": "{:%H\n%M}",
     "tooltip-format": "{:%Y-%m-%d}",
+    "on-click":"foot calcurse"
   },
    "network": {
    	"rotate":90,
@@ -82,7 +82,7 @@
   },
   "temperature": {
     "rotate": 90,
-    "interval": 3,
+    "interval":3,
     "hwmon-path": "/sys/class/hwmon/hwmon6/temp1_input",
     "critical-threshold": 80,
     "format": "{icon} {temperatureC}°C",
