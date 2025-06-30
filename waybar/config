@@ -25,15 +25,6 @@
         "format": "──"
     //"format": ""
   },
-  "custom/bluetooth_devices": {
-    "exec": "$HOME/.config/waybar/custom_modules/bluetooth_devices.sh",
-    "return-type": "json",
-    "format": "{}",
-    "justify": "center",
-    "rotate": 90,
-    "interval": 5,
-    "on-click": "blueman-manager"
-  },
   "hyprland/workspaces": {
     "format": "{icon}",
     "on-click": "activate",
@@ -83,7 +74,7 @@
   "temperature": {
     "rotate": 90,
     "interval":3,
-    "hwmon-path": "/sys/class/hwmon/hwmon6/temp1_input",
+    "hwmon-path": "/sys/class/hwmon/hwmon7/temp1_input",
     "critical-threshold": 80,
     "format": "{icon} {temperatureC}°C",
     "format-icons": [
