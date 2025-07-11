@@ -146,7 +146,7 @@
    enable = true;
     config = {
      user.name = "FireBall82";
-     user.email = "roemnnegrik82@gmail.com";
+     user.email = "romennegrik82@gmail.com";
      init.defaultBranch = "master";
      pull.rebase = true;
   };	
