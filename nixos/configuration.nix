@@ -1,7 +1,3 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
-
 { config, inputs, stable, lib, pkgs, ... }:
 {
   imports =
@@ -26,17 +22,9 @@
   };
   #Nvidia driver
   services.xserver.videoDrivers = ["nvidia" "modesetting" "intel"];
-  services.power-profiles-daemon.enable = false;
-  services.tlp = {
-    enable = true;
-    settings = {
-      INTEL_GPU_MIN_FREQ_ON_AC = "600";
-      INTEL_GPU_MIN_FREQ_ON_BAT = "400";
-    };
-};
+  services.power-profiles-daemon.enable = true;
   #nvidia config
   hardware.nvidia = {
-
     # Modesetting is required.
     modesetting.enable = true;
 
@@ -153,17 +141,39 @@
   programs.firefox.enable = true;
   #Install steam
   programs.steam.enable = true;
+  #Git config
+  programs.git = {
+   enable = true;
+    config = {
+     user.name = "FireBall82";
+     user.email = "roemnnegrik82@gmail.com";
+     init.defaultBranch = "master";
+     pull.rebase = true;
+  };	
+};
+  #Neovim config
+  programs.neovim = {
+   enable = true;
+   defaultEditor = true;
+};
+  #docker
+  virtualisation.docker.enable = true;
   #Hyprland
    programs.hyprland = {
     enable = true;
     xwayland.enable = true;
+    package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
+    portalPackage = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
   };
   environment.sessionVariables = {
   #Cursor fix
   WLR_NO_HARDWARE_CURSORS = "1";
-  #Monitor fix
-  WLR_DRM_DEVICES="/dev/dri/card2";
+  AQ_DRM_DEVICES = "/dev/dri/card1:/dev/dri/card0";
 };
+fonts.packages = with pkgs; [
+  nerd-fonts.jetbrains-mono
+  nerd-fonts.heavy-data
+];
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
   # List packages installed in system profile. To search, run:
@@ -194,25 +204,34 @@ gtk4
 cmake
 #-------
 tor
+torsocks
+torctl
+blueman
 lshw
 cava
 waybar
 stable.zoom-us
 lenovo-legion
 hyprpaper
+unzip
+redis
 stable.audacity
 wofi
+docker
+docker-compose
 stable.chromium
 man
 thunderbird
 fish
+vscode
+python3
 pavucontrol
-jdk
-python314
 wine64
 ranger
 calcurse
 gccgo14
+tree
+curl
 w3m
 stable.brightnessctl
 git

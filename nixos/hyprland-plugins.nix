@@ -10,6 +10,6 @@ let
   };
 in {
   environment.sessionVariables = {
-    HYPR_PLUGIN_DIR = hyprPluginDir;
+    HYPR_PLUGIN_PATH = "${hyprPluginDir}/lib";
   };
 }
