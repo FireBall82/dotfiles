@@ -1,85 +1,151 @@
 * {
-  border: none;
-  font-family: "Hack", "Font Awesome 6 Pro";
-  font-size: 14px;
-  font-weight: 600;
-  background: none;
+    font-size: 14px;
+    border-radius: 5px;
 }
 
 window#waybar {
-  color: #a5adcb;
+    font-family: FontAwesome, monospace;
+    background-color: #2E3440; /* Solid Nordic background */
+    border-bottom: 0px;
+    color: #E5F4F8;
+    transition-property: background-color;
+    transition-duration: .5s;
+}
+
+window#waybar.hidden {
+    opacity: 0.2;
+}
+
+/* Center all main modules */
+.modules-center {
+    margin: 10px;
 }
 .modules-left,
-.modules-right,
-.modules-center {
-  border-radius: 6px;
-  background: rgba(0, 11, 17, 0.7 ); 
-  padding: 6px 0;
-}
-tooltip {
-  color: #a5adcb;
-  background-color: #181926;
-  text-shadow: none;
+.modules-right {
+    margin: 10px;
 }
 
-tooltip * {
-  color: #a5adcb;
-  text-shadow: none;
-}
-.modules-center {
-}
-
-#custom-sep {
-  color: #1e2b2d;
-  margin: 4px 0;
-}
-#workspaces,
-#clock,
-#custom-bluetooth_devices,
-#custom-powermenu,
-#batteryi,
-#pulseaudio,
-#tray {
-}
+/* Workspaces */
 #workspaces {
-  border-radius: 4px;
-}
-#workspaces button {
-  color: #5b6078;
-  background: none;
-  padding: 0;
-}
-#workspaces button:hover {
-  color: #7ef8fc;
-}
-#workspaces button.active {
-  color: #17b5b2;
-}
-#temperature {
-  color: #90f9f9;
-}
-#clock {
-  font-weight: 600;
-  color: #6ff7f5;
-}
-#battery{
-    color:#4edb68;
-}
-#custom-bluetooth_devices {
-  color: #8aadf4;
-}
-#pulseaudio {
-  color: #53d683;
-}
-#pulseaudio.muted {
-  color: #f45353;
-}
-#network {
-  color: #60b0d6;
+    background-color: #3B4252;
 }
 
-#custom-powermenu {
-  margin: 12px 0 0 0;
-  color: #6e738d;
+#workspaces button {
+    padding: 0 8px;
+    background-color: transparent;
+    color: #8FBCBB;
+    border-radius: 0;
+}
+
+#workspaces button:first-child {
+    border-radius: 5px 0 0 5px;
+}
+
+#workspaces button:last-child {
+    border-radius: 0 5px 5px 0;
+}
+
+#workspaces button:hover {
+    color: #88E0E0;
+}
+
+#workspaces button.focused {
+    background-color: #88C0D0;
+    color: #2E3440;
+}
+
+#workspaces button.urgent {
+    background-color: #BF616A;
+}
+
+/* Modules */
+#mode,
+#window,
+#clock,
+#battery,
+#backlight,
+#wireplumber,
+#tray,
+#mpris,
+#load, 
+#memory,
+#temperature {
+    padding: 0 10px;
+    background-color: #3B4252;
+    color: #E5F4F8;
+}
+
+/* Memory & Temperature special styling */
+#memory {
+    background-color: #88C0D0;
+    color: #2E3440;
+    font-weight: bold;
+}
+
+#temperature {
+    background-color: #5E81AC;
+    color: #E5F4F8;
+    font-weight: bold;
+}
+#load {
+    background-color:#62b3c9;
+    color: #2e3440;
+    font-weight: bold;
+}
+/* Mode active */
+#mode {
+  background-color: #81a1c1; /* lighter cyan/blue */
+    color: #2e3440;            /* dark text for contrast */
+    padding: 0 10px;
+    border-radius: 5px;
+}
+#mode:hover {
+   background-color: #88c0d0;
+    color: #2e3440;
+}
+#cava{
+   margin:10px 0 0 0;
+}
+
+/* Battery states */
+#battery.charging, #battery.plugged {
+    background-color: #88C0D0;
+    color: #2E3440;
+}
+
+@keyframes blink {
+    to {
+        background-color: #3B4252;
+        color: #E5F4F8;
+    }
+}
+
+#battery.critical:not(.charging) {
+    background-color: #BF616A;
+    color: #E5F4F8;
+    animation-name: blink;
+    animation-duration: 0.5s;
+    animation-timing-function: steps(12);
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+/* Volume muted */
+#wireplumber.muted {
+    background-color: #5E81AC;
+}
+
+/* MPRIS playing */
+#mpris.playing {
+    background-color: #88E0E0;
+    color: #2E3440;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
 }
 
