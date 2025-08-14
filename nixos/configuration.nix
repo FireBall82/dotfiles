@@ -90,10 +90,11 @@
   # Enable the X11 windowing system.
   # You can disable this if you're only using the Wayland session.
   services.xserver.enable = false;
+  programs.adb.enable = true;
   #Required by networking
   security.polkit.enable = true;
   # Enable the KDE Plasma Desktop Environment.
-  services.desktopManager.plasma6.enable = true;  
+  services.desktopManager.plasma6.enable = true;
   services.displayManager.sddm.enable = true;
   # Configure keymap in X11
   services.xserver.xkb = {
@@ -108,6 +109,8 @@
 
   # Enable CUPS to print documents.
   services.printing.enable = true;
+  #Zram swap
+  zramSwap.enable = true;
   # Enable sound with pipewire.
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
@@ -185,14 +188,16 @@ foot
 stable.spotify
 stable.telegram-desktop
 stable.discord
+stable.librewolf
 neovim
 fastfetch
 gamescope
 btop
 rpm
 cmatrix
+protontricks
 stable.vlc
-wpsoffice
+playerctl
 #hyprland plugins dependencies
 #-------
 cairo
@@ -219,7 +224,6 @@ stable.audacity
 wofi
 docker
 docker-compose
-stable.chromium
 man
 thunderbird
 fish

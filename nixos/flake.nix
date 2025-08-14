@@ -5,9 +5,9 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     stable.url = "github:NixOS/nixpkgs/nixos-25.05";
     hyprland.url = "github:hyprwm/Hyprland";
-  hyprland-plugins = {
-    url = "github:hyprwm/hyprland-plugins";
-    inputs.hyprland.follows = "hyprland";
+    hyprland-plugins = {
+      url = "github:hyprwm/hyprland-plugins";
+      inputs.hyprland.follows = "hyprland";
   };
 };
 
