@@ -1,6 +1,6 @@
 show = drun
 width = 600
-height = 325
+height = 260
 always_show = true
 no_actions = true
 hide_scroll = true
