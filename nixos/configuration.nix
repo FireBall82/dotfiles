@@ -9,6 +9,10 @@
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  boot.kernelParams = [
+    "nvidia-drm.modeset=1"
+  ];
+
 
   networking.hostName = "nixos"; # Define your hostname.
   #networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -68,7 +72,21 @@
 
   # Enable networking
   networking.networkmanager.enable = true;
-
+  # Bluetooth
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+    settings = {
+      General = {
+        ControllerMode = "bredr"; # Fix frequent Bluetooth audio dropouts
+        Experimental = true;
+        FastConnectable = true;
+      };
+      Policy = {
+        AutoEnable = true;
+      };
+   };
+};
   # Set your time zone.
   time.timeZone = "Europe/Kyiv";
 
@@ -113,6 +131,8 @@
   zramSwap.enable = true;
   # Enable sound with pipewire.
   services.pulseaudio.enable = false;
+  #blueman
+  services.blueman.enable = true;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -171,7 +191,8 @@
   environment.sessionVariables = {
   #Cursor fix
   WLR_NO_HARDWARE_CURSORS = "1";
-  AQ_DRM_DEVICES = "/dev/dri/card1:/dev/dri/card0";
+  __GL_YIELD = "USLEEP";        # reduces stutter
+  __GL_SYNC_TO_VBLANK = "1";    # enable vsync for NVIDIA
 };
 fonts.packages = with pkgs; [
   nerd-fonts.jetbrains-mono
@@ -198,6 +219,8 @@ cmatrix
 protontricks
 stable.vlc
 playerctl
+yazi
+vesktop
 #hyprland plugins dependencies
 #-------
 cairo
@@ -211,7 +234,7 @@ cmake
 tor
 torsocks
 torctl
-blueman
+pwvucontrol
 lshw
 cava
 waybar
