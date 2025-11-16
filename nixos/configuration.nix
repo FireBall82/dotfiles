@@ -26,7 +26,6 @@
   };
   #Nvidia driver
   services.xserver.videoDrivers = ["nvidia" "modesetting" "intel"];
-  services.power-profiles-daemon.enable = true;
   #nvidia config
   hardware.nvidia = {
     # Modesetting is required.
@@ -55,7 +54,7 @@
     nvidiaSettings = true;
 
     # Optionally, you may need to select the appropriate driver version for your specific GPU.
-    package = config.boot.kernelPackages.nvidiaPackages.stable;
+    package = config.boot.kernelPackages.nvidiaPackages.latest;
   };
   #nvidia prime config
   hardware.nvidia.prime = {
@@ -114,6 +113,8 @@
   # Enable the KDE Plasma Desktop Environment.
   services.desktopManager.plasma6.enable = true;
   services.displayManager.sddm.enable = true;
+  services.auto-cpufreq.enable = true;
+  services.power-profiles-daemon.enable = false;
   # Configure keymap in X11
   services.xserver.xkb = {
     layout = "us";
@@ -149,6 +150,8 @@
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
 
+  
+
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.diller = {
     isNormalUser = true;
@@ -169,7 +172,7 @@
    enable = true;
     config = {
      user.name = "FireBall82";
-     user.email = "*****************";
+     user.email = "romennegrik82@gmail.com";
      init.defaultBranch = "master";
      pull.rebase = true;
   };	
@@ -191,8 +194,14 @@
   environment.sessionVariables = {
   #Cursor fix
   WLR_NO_HARDWARE_CURSORS = "1";
+  NIXOS_OZONE_WL = "1"; #hint electron apps to use wayland
+  GBM_BACKEND = "nvidia-drm";
+  LIBVA_DRIVER_NAME = "nvidia";
   __GL_YIELD = "USLEEP";        # reduces stutter
   __GL_SYNC_TO_VBLANK = "1";    # enable vsync for NVIDIA
+  __NV_PRIME_RENDER_OFFLOAD = "1";          # enable offloading to NVIDIA
+  __GLX_VENDOR_LIBRARY_NAME = "nvidia";    # use NVIDIA GLX library
+  __VK_LAYER_NV_optimus = "NVIDIA_only";   # Vulkan offload
 };
 fonts.packages = with pkgs; [
   nerd-fonts.jetbrains-mono
@@ -210,7 +219,10 @@ stable.spotify
 stable.telegram-desktop
 stable.discord
 stable.librewolf
+daggerfall-unity
+stable.waypaper
 neovim
+auto-cpufreq
 fastfetch
 gamescope
 btop
@@ -221,6 +233,7 @@ stable.vlc
 playerctl
 yazi
 vesktop
+obs-studio
 #hyprland plugins dependencies
 #-------
 cairo
@@ -235,6 +248,7 @@ tor
 torsocks
 torctl
 pwvucontrol
+quickshell
 lshw
 cava
 waybar
@@ -244,11 +258,12 @@ hyprpaper
 unzip
 redis
 stable.audacity
-wofi
 docker
 docker-compose
 man
-thunderbird
+hypridle
+fuzzel
+stable.thunderbird
 fish
 vscode
 python3
@@ -262,10 +277,10 @@ curl
 w3m
 stable.brightnessctl
 git
-ollama
-mako
-clipse
-wl-clipboard
+stable.ollama
+stable.mako
+stable.clipse
+stable.wl-clipboard
 ];
 
   # Some programs need SUID wrappers, can be configured further or are
