@@ -5,7 +5,7 @@
 
 window#waybar {
     font-family: FontAwesome, monospace;
-    background-color: #2E3440; /* Solid Nordic background */
+    background-color: #1d1f1e; /* Solid Nordic background */
     border-bottom: 0px;
     color: #E5F4F8;
     transition-property: background-color;
@@ -27,7 +27,7 @@ window#waybar.hidden {
 
 /* Workspaces */
 #workspaces {
-    background-color: #3B4252;
+    background-color: #323635;
 }
 
 #workspaces button {
