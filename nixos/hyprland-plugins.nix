@@ -1,4 +1,10 @@
-{ config, pkgs, lib, inputs, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  inputs,
+  ...
+}:
 let
   hyprPluginPkgs = inputs.hyprland-plugins.packages.${pkgs.system};
   hyprPluginDir = pkgs.symlinkJoin {
@@ -8,7 +14,8 @@ let
       hyprexpo
     ];
   };
-in {
+in
+{
   environment.sessionVariables = {
     HYPR_PLUGIN_PATH = "${hyprPluginDir}/lib";
   };

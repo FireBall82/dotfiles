@@ -30,7 +30,7 @@
           config.allowUnfree = true;
         };
       inputs = {
-        inherit hyprland hyprland-plugins ;
+        inherit hyprland hyprland-plugins;
         };
       };
     };
