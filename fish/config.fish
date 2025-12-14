@@ -11,6 +11,5 @@ set -gx VISUAL "nvim"
 
 alias config='cd / && cd etc/nixos && sudo nvim configuration.nix'
 alias rebuild='sudo nixos-rebuild switch --flake /etc/nixos/#diller'
-alias nixvim='cd ~ && nix run .config/nixvim/'
 cat ~/.cache/wal/sequences
 
