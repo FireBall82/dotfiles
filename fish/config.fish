@@ -1,5 +1,4 @@
-function fish_greeting                                            
-    echo "aww shit here we go again"
+function fish_greeting
 end
 function fish_prompt
     echo ' -'$PWD '->'
@@ -10,6 +9,8 @@ end
 set -gx EDITOR "nvim"
 set -gx VISUAL "nvim"
 
-fastfetch
 alias config='cd / && cd etc/nixos && sudo nvim configuration.nix'
-alias rebuild='sudo nixos-rebuild switch'
+alias rebuild='sudo nixos-rebuild switch --flake /etc/nixos/#diller'
+alias nixvim='cd ~ && nix run .config/nixvim/'
+cat ~/.cache/wal/sequences
+
