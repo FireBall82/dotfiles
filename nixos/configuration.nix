@@ -9,6 +9,7 @@
 {
   imports = [
     # Include the results of the hardware scan.
+    inputs.spicetify-nix.nixosModules.default
     ./hardware-configuration.nix
     (import ./hyprland-plugins.nix {
       inherit
@@ -91,7 +92,7 @@
   # Bluetooth
   hardware.bluetooth = {
     enable = true;
-    powerOnBoot = true;
+    powerOnBoot = false;
     settings = {
       General = {
         ControllerMode = "bredr"; # Fix frequent Bluetooth audio dropouts
@@ -127,6 +128,8 @@
   programs.adb.enable = true;
   #Required by networking
   security.polkit.enable = true;
+  services.gnome.gnome-keyring.enable = true;
+  security.pam.services.sddm.enableGnomeKeyring = true;
   # Enable the KDE Plasma Desktop Environment.
   services.desktopManager.plasma6.enable = true;
   services.displayManager.sddm.enable = true;
@@ -184,6 +187,26 @@
 
   # Install firefox.
   programs.firefox.enable = true;
+  #Spicetify
+  programs.spicetify =
+    let
+      spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.stdenv.hostPlatform.system};
+    in
+    {
+      enable = true;
+
+      enabledExtensions = with spicePkgs.extensions; [
+        adblock
+      ];
+      enabledCustomApps = with spicePkgs.apps; [
+      ];
+      enabledSnippets = with spicePkgs.snippets; [
+      ];
+
+      theme = spicePkgs.themes.catppuccin;
+      colorScheme = "mocha";
+    };
+
   #Install steam
   programs.steam.enable = true;
   #Git config
@@ -215,6 +238,8 @@
     CURL_HTTP_VERSION = "1.1";
     #Cursor fix
     WLR_NO_HARDWARE_CURSORS = "1";
+    MOZ_ENABLE_WAYLAND = "0";
+    MOZ_WEBRENDER = "1";
     NIXOS_OZONE_WL = "1"; # hint electron apps to use wayland
     GBM_BACKEND = "nvidia-drm";
     LIBVA_DRIVER_NAME = "nvidia";
@@ -236,7 +261,6 @@
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     wget
     foot
-    nil
     pywal
     stable.spotify
     stable.telegram-desktop
@@ -245,6 +269,8 @@
     daggerfall-unity
     waypaper
     neovim
+    hyprcursor
+    inputs.rose-pine-hyprcursor.packages.${pkgs.system}.default
     libnotify
     auto-cpufreq
     fastfetch
@@ -257,6 +283,7 @@
     playerctl
     yazi
     vesktop
+    stable.gparted
     obs-studio
     #hyprland plugins dependencies
     #-------
@@ -272,11 +299,10 @@
     torsocks
     torctl
     pwvucontrol
-    quickshell
     lshw
     cava
     waybar
-    spotifyd
+    pywalfox-native
     stable.zoom-us
     lenovo-legion
     hyprpaper
