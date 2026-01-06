@@ -1,3 +1,5 @@
+@import url("file:///home/diller/.cache/wal/colors-waybar.css");
+
 * {
   font-size: 14px;
   border-radius: 5px;
@@ -5,9 +7,9 @@
 
 window#waybar {
   font-family: FontAwesome, monospace;
-  background-color: #1d1f1e; /* Solid Nordic background */
+  background-color: @background;
+  color: @foreground;
   border-bottom: 0px;
-  color: #e5f4f8;
   transition-property: background-color;
   transition-duration: 0.5s;
 }
@@ -16,24 +18,21 @@ window#waybar.hidden {
   opacity: 0.2;
 }
 
-/* Center all main modules */
-.modules-center {
-  margin: 10px;
-}
 .modules-left,
+.modules-center,
 .modules-right {
   margin: 10px;
 }
 
-/* Workspaces */
+/* ===== WORKSPACES ===== */
 #workspaces {
-  background-color: #323635;
+  background-color: @color0;
 }
 
 #workspaces button {
   padding: 0 8px;
   background-color: transparent;
-  color: #8fbcbb;
+  color: @color7;
   border-radius: 0;
 }
 
@@ -46,19 +45,19 @@ window#waybar.hidden {
 }
 
 #workspaces button:hover {
-  color: #88e0e0;
+  color: @color6;
 }
 
 #workspaces button.focused {
-  background-color: #88c0d0;
-  color: #2e3440;
+  background-color: @color4;
+  color: @background;
 }
 
 #workspaces button.urgent {
-  background-color: #bf616a;
+  background-color: @color1;
+  color: @foreground;
 }
 
-/* Modules */
 #mode,
 #window,
 #clock,
@@ -71,81 +70,76 @@ window#waybar.hidden {
 #memory,
 #temperature {
   padding: 0 10px;
-  background-color: #3b4252;
-  color: #e5f4f8;
+  background-color: @color0;
+  color: @foreground;
 }
+
 #submap {
   padding: 0 10px;
-  background-color: #88c0d0;
-  color: #2e3440;
+  background-color: @color4;
+  color: @background;
   font-weight: bold;
 }
 
-/* Memory & Temperature special styling */
 #memory {
-  background-color: #88c0d0;
-  color: #2e3440;
+  background-color: @color4;
+  color: @background;
+  font-weight: bold;
+}
+
+#load {
+  background-color: @color6;
+  color: @background;
   font-weight: bold;
 }
 
 #temperature {
-  background-color: #5e81ac;
-  color: #e5f4f8;
+  background-color: @color5;
+  color: @foreground;
   font-weight: bold;
 }
-#load {
-  background-color: #62b3c9;
-  color: #2e3440;
-  font-weight: bold;
-}
-/* Mode active */
+
 #mode {
-  background-color: #81a1c1; /* lighter cyan/blue */
-  color: #2e3440; /* dark text for contrast */
-  padding: 0 10px;
-  border-radius: 5px;
+  background-color: @color4;
+  color: @background;
+  font-weight: bold;
 }
+
 #mode:hover {
-  background-color: #88c0d0;
-  color: #2e3440;
+  background-color: @color6;
+  color: @background;
 }
+
 #cava {
   margin: 10px 0 0 0;
 }
 
-/* Battery states */
 #battery.charging,
 #battery.plugged {
-  background-color: #88c0d0;
-  color: #2e3440;
+  background-color: @color4;
+  color: @background;
 }
 
 @keyframes blink {
   to {
-    background-color: #3b4252;
-    color: #e5f4f8;
+    background-color: @color0;
+    color: @foreground;
   }
 }
 
 #battery.critical:not(.charging) {
-  background-color: #bf616a;
-  color: #e5f4f8;
-  animation-name: blink;
-  animation-duration: 0.5s;
-  animation-timing-function: steps(12);
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
+  background-color: @color1;
+  color: @foreground;
+  animation: blink 0.5s steps(12) infinite alternate;
 }
 
-/* Volume muted */
 #wireplumber.muted {
-  background-color: #5e81ac;
+  background-color: @color5;
 }
 
-/* MPRIS playing */
 #mpris.playing {
-  background-color: #88e0e0;
-  color: #2e3440;
+  background-color: @color6;
+  color: @background;
 }
 
 #tray > .passive {
