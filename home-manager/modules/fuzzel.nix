@@ -1,0 +1,25 @@
+{ config, pkgs, ... }:
+{
+  home.file.".config/fuzzel/fuzzel.ini".text = ''
+        use-bold = true
+    font = JetBrainsMono Nerd Font:size=12
+    icons-enabled = false
+    anchor = right
+    x-margin = 3
+    lines = 41
+    tabs = 3
+    horizontal-pad = 10
+    [colors]
+    background=05070Eff
+    text=cce0eeff
+    match=50669Aff
+    selection=50669Aff
+    selection-text=D8DEE9ff
+    border=50669Aff
+    prompt=00C7DFff
+    input=D8DEE9ff
+    [border]
+    width=2
+    radius=10
+  '';
+}
