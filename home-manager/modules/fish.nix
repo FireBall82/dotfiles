@@ -45,8 +45,8 @@
     ];
     shellAliases = {
       config = "cd / && cd etc/nixos && sudo nvim configuration.nix";
-      rebuild = "sudo nixos-rebuild switch --flake .#diller";
-      rebuild-test = "sudo nixos-rebuild test --flake .#diller";
+      rebuild = "sudo nixos-rebuild switch --flake /etc/nixos#diller";
+      rebuild-test = "sudo nixos-rebuild test --flake /etc/nixos#diller";
       rebuild-home = "home-manager switch";
       rebuild-update = "cd / && cd etc/nixos && sudo nix flake update && sudo nixos-rebuild switch --flake .#diller";
     };
