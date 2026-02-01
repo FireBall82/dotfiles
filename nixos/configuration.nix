@@ -10,14 +10,6 @@
   imports = [
     inputs.spicetify-nix.nixosModules.default
     ./hardware-configuration.nix
-    (import ./hyprland-plugins.nix {
-      inherit
-        config
-        pkgs
-        lib
-        inputs
-        ;
-    })
   ];
 
   # Bootloader.
@@ -29,6 +21,8 @@
     };
     kernelParams = [
       "nvidia-drm.modeset=1"
+      "nvidia-drm.fbdev=1" # helps with some display issues
+      "nvidia.NVreg_PreserveVideoMemoryAllocations=1" # helps with suspend/resume
     ];
   };
   networking.hostName = "nixos";
@@ -59,12 +53,7 @@
   };
   #nvidia prime config
   hardware.nvidia.prime = {
-    #Offload(better power consumption)
-    offload = {
-      enable = true;
-      enableOffloadCmd = true;
-    };
-
+    reverseSync.enable = true;
     #Bus ID values
     intelBusId = "PCI:0:0:2";
     nvidiaBusId = "PCI:0:1:0";
@@ -113,9 +102,9 @@
   # Enable the KDE Plasma Desktop Environment.
   services.desktopManager.plasma6.enable = true;
   services.displayManager.sddm.enable = true;
-  #auto-cpufreq
-  services.auto-cpufreq.enable = true;
-  services.power-profiles-daemon.enable = false;
+  services.auto-cpufreq.enable = false;
+  services.power-profiles-daemon.enable = true;
+  powerManagement.cpuFreqGovernor = "performance";
   # Configure keymap in X11
   services.xserver.xkb = {
     layout = "us";
@@ -185,28 +174,26 @@
   #docker
   virtualisation.docker.enable = true;
   programs.niri.enable = true;
-  #Hyprland
-  programs.hyprland = {
-    enable = true;
-    xwayland.enable = true;
-    package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
-    portalPackage =
-      inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
+  nix = {
+    settings = {
+      auto-optimise-store = true;
+    };
+    gc = {
+      automatic = true;
+      dates = "weekly";
+      options = "--delete-older-than 14d";
+    };
   };
   environment.sessionVariables = {
-    CURL_HTTP_VERSION = "1.1";
-    #Cursor fix
     WLR_NO_HARDWARE_CURSORS = "1";
-    MOZ_ENABLE_WAYLAND = "0";
-    MOZ_WEBRENDER = "1";
-    NIXOS_OZONE_WL = "1"; # hint electron apps to use wayland
+    NIXOS_OZONE_WL = "1";
     GBM_BACKEND = "nvidia-drm";
     LIBVA_DRIVER_NAME = "nvidia";
-    __GL_YIELD = "USLEEP"; # reduces stutter
-    __GL_SYNC_TO_VBLANK = "1"; # enable vsync for NVIDIA
-    __NV_PRIME_RENDER_OFFLOAD = "1"; # enable offloading to NVIDIA
-    __GLX_VENDOR_LIBRARY_NAME = "nvidia"; # use NVIDIA GLX library
-    __VK_LAYER_NV_optimus = "NVIDIA_only"; # Vulkan offload
+    __GLX_VENDOR_LIBRARY_NAME = "nvidia";
+    __GL_GSYNC_ALLOWED = "1";
+    __GL_VRR_ALLOWED = "1";
+    WLR_DRM_DEVICES = "/dev/dri/card1:/dev/dri/card0"; # Force NVIDIA primary
+    XDG_SESSION_TYPE = "wayland";
   };
   fonts.packages = with pkgs; [
     nerd-fonts.jetbrains-mono
@@ -226,7 +213,6 @@
     waypaper
     neovim
     hyprcursor
-    inputs.rose-pine-hyprcursor.packages.${pkgs.system}.default
     inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
     inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default
     libnotify
@@ -285,17 +271,30 @@
     stable.w3m
     stable.brightnessctl
     git
+    xwayland-satellite
     subversionClient
     stable.ollama
     stable.mako
     stable.clipse
     stable.wl-clipboard
   ];
-  # services.openssh.enable = true;
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
 
+  services.openssh = {
+    enable = true;
+    settings = {
+      PasswordAuthentication = false; # NO passwords
+      PermitRootLogin = "no";
+      KbdInteractiveAuthentication = false;
+    };
+    openFirewall = true;
+  };
+
+  # Fail2ban to block brute force attempts
+  services.fail2ban = {
+    enable = true;
+    maxretry = 3;
+  };
+  networking.firewall.enable = true;
+  services.tailscale.enable = true;
   system.stateVersion = "24.11";
 }

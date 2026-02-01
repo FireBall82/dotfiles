@@ -7,6 +7,7 @@
 
 {
   # Niri compositor configuration
+  home.file.".config/niri/config.kdl".force = true;
   home.file.".config/niri/config.kdl".text = ''
     prefer-no-csd
 
@@ -28,12 +29,12 @@
             // accel-speed 0
             // accel-profile "flat"
         }
-    }
+    } 
 
     output "HDMI-A-5" {
         mode "1920x1080@120"
         scale 1.2
-        transform "normal"
+        transform "270"
         position x=1920 y=0
     }
 
