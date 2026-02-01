@@ -1,3 +1,0 @@
-#!/bin/sh
-cat ~/.cache/wal/sequences
-yazi
