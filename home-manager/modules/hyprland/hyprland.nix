@@ -20,7 +20,7 @@
       # Monitors
       monitor = [
         "eDP-1, 2560x1600@120, 0x0, 1.6"
-        "HDMI-A-5, 1920x1080@120, -1080x0, 1, transform,3"
+        "HDMI-A-1, 1920x1080@120, -1080x0, 1, transform,3"
       ];
 
       xwayland = {
@@ -30,14 +30,14 @@
       workspace = [
         "1,monitor:eDP-1"
         "2,monitor:eDP-1"
-        "3,monitor:HDMI-A-5"
-        "4,monitor:HDMI-A-5"
-        "5,monitor:HDMI-A-5"
+        "3,monitor:HDMI-A-1"
+        "4,monitor:HDMI-A-1"
+        "5,monitor:HDMI-A-1"
         "6,monitor:eDP-1"
         "7,monitor:eDP-1"
         "8,monitor:eDP-1"
         "9,monitor:eDP-1"
-        "10,monitor:HDMI-A-5"
+        "10,monitor:HDMI-A-1"
       ];
 
       # Variables
@@ -105,8 +105,8 @@
           xray = false;
           special = false;
           new_optimizations = true;
-          size = 3;
-          passes = 2;
+          size = 2;
+          passes = 1;
           brightness = 1;
           noise = 0.04;
           contrast = 1;
@@ -173,6 +173,9 @@
         vrr = 1;
         force_default_wallpaper = 1;
         disable_hyprland_logo = true;
+        animate_manual_resizes = false;
+        animate_mouse_windowdragging = false;
+        disable_autoreload = false;
       };
 
       # Input
@@ -201,7 +204,7 @@
         disable_logs = false;
         overlay = false;
       };
-
+      layerrule = "ignore_alpha on, match:namespace noctalia-bar-content-eDP-1";
       # Keybindings
       bind = [
         "$mainMod, Q, exec, $terminal"
@@ -211,9 +214,11 @@
         "$mainMod, T, togglefloating,"
         "$mainMod, D, exec, $menu"
         "$mainMod, P, pseudo,"
+        "$mainMod, F, fullscreen, 0,"
         "$mainMod, J, togglesplit,"
         "$mainMod, M, exec, hyprctl dispatch exit"
         "$mainMod, R, submap, resize"
+        "$mainMod, W, hyprexpo:expo, toggle"
 
         # Focus
         "$mainMod, left, movefocus, l"

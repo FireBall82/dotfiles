@@ -22,7 +22,7 @@
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
         modules = [
           ./home.nix
-          ./modules/hyprland/hyprland.nix # ← separate module
+          ./modules/hyprland/hyprland.nix
         ];
         extraSpecialArgs = {
           inherit hyprland-plugins;

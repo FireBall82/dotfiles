@@ -19,11 +19,26 @@
       efi.canTouchEfiVariables = true;
 
     };
+    kernelModules = [
+      "ideapad_laptop"
+    ];
     kernelParams = [
       "nvidia-drm.modeset=1"
       "nvidia-drm.fbdev=1" # helps with some display issues
       "nvidia.NVreg_PreserveVideoMemoryAllocations=1" # helps with suspend/resume
     ];
+  };
+  systemd.services.battery-threshold = {
+    description = "Set battery conservation mode";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = pkgs.writeShellScript "set-conservation-mode" ''
+        echo 1 > /sys/bus/platform/drivers/ideapad_acpi/VPC2004:00/conservation_mode
+      '';
+    };
   };
   networking.hostName = "nixos";
   #networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -101,7 +116,34 @@
   security.pam.services.sddm.enableGnomeKeyring = true;
   # Enable the KDE Plasma Desktop Environment.
   services.desktopManager.plasma6.enable = true;
-  services.displayManager.sddm.enable = true;
+  services.displayManager.sddm = {
+    enable = true;
+    wayland.enable = true;
+    theme = "sddm-astronaut-theme";
+    extraPackages = with pkgs; [
+      sddm-astronaut
+      kdePackages.qtmultimedia
+    ];
+  };
+  # Create custom SDDM session for user-installed Hyprland
+  services.displayManager.sessionPackages = [
+    (pkgs.runCommand "hyprland-user-session"
+      {
+        passthru.providedSessions = [ "hyprland-user" ];
+      }
+      ''
+        mkdir -p $out/share/wayland-sessions
+        cat > $out/share/wayland-sessions/hyprland-user.desktop << EOF
+        [Desktop Entry]
+        Name=Hyprland (User)
+        Comment=Hyprland installed via Home Manager
+        Exec=start-hyprland
+        Type=Application
+        DesktopNames=Hyprland
+        EOF
+      ''
+    )
+  ];
   services.auto-cpufreq.enable = false;
   services.power-profiles-daemon.enable = true;
   powerManagement.cpuFreqGovernor = "performance";
@@ -193,6 +235,7 @@
     __GL_GSYNC_ALLOWED = "1";
     __GL_VRR_ALLOWED = "1";
     WLR_DRM_DEVICES = "/dev/dri/card1:/dev/dri/card0"; # Force NVIDIA primary
+    QML_DISABLE_DISK_CACHE = "1";
     XDG_SESSION_TYPE = "wayland";
   };
   fonts.packages = with pkgs; [
@@ -216,7 +259,8 @@
     inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
     inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default
     libnotify
-    auto-cpufreq
+    sddm-astronaut
+    kdePackages.qtmultimedia
     fastfetch
     gamescope
     btop
@@ -288,7 +332,6 @@
     };
     openFirewall = true;
   };
-
   # Fail2ban to block brute force attempts
   services.fail2ban = {
     enable = true;
