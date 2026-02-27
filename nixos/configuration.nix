@@ -24,8 +24,8 @@
     ];
     kernelParams = [
       "nvidia-drm.modeset=1"
-      "nvidia-drm.fbdev=1" # helps with some display issues
-      "nvidia.NVreg_PreserveVideoMemoryAllocations=1" # helps with suspend/resume
+      "nvidia-drm.fbdev=1" 
+      "nvidia.NVreg_PreserveVideoMemoryAllocations=1" 
     ];
   };
   systemd.services.battery-threshold = {
