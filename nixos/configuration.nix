@@ -24,8 +24,8 @@
     ];
     kernelParams = [
       "nvidia-drm.modeset=1"
-      "nvidia-drm.fbdev=1" 
-      "nvidia.NVreg_PreserveVideoMemoryAllocations=1" 
+      "nvidia-drm.fbdev=1" # helps with some display issues
+      "nvidia.NVreg_PreserveVideoMemoryAllocations=1" # helps with suspend/resume
     ];
   };
   systemd.services.battery-threshold = {
@@ -113,18 +113,18 @@
   #Required by networking
   security.polkit.enable = true;
   services.gnome.gnome-keyring.enable = true;
-  security.pam.services.sddm.enableGnomeKeyring = true;
   # Enable the KDE Plasma Desktop Environment.
   services.desktopManager.plasma6.enable = true;
-  services.displayManager.sddm = {
+  services.greetd = {
     enable = true;
-    wayland.enable = true;
-    theme = "sddm-astronaut-theme";
-    extraPackages = with pkgs; [
-      sddm-astronaut
-      kdePackages.qtmultimedia
-    ];
+
+    settings = {
+      default_session = {
+        command = "${pkgs.tuigreet}/bin/tuigreet --cmd start-hyprland";
+      };
+    };
   };
+
   # Create custom SDDM session for user-installed Hyprland
   services.displayManager.sessionPackages = [
     (pkgs.runCommand "hyprland-user-session"
@@ -247,6 +247,7 @@
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     wget
     foot
+    inputs.calc.packages.x86_64-linux.default
     pywal
     stable.spotify
     stable.telegram-desktop
@@ -314,6 +315,7 @@
     stable.curl
     stable.w3m
     stable.brightnessctl
+    tome4
     git
     xwayland-satellite
     subversionClient

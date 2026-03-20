@@ -13,6 +13,10 @@
       url = "github:noctalia-dev/noctalia-shell";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    calc = {
+      url = "path:/home/diller/Documents/rust_calc/calc";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -22,6 +26,7 @@
       spicetify-nix,
       quickshell,
       noctalia,
+      calc,
       ...
     }@inputs:
     {
@@ -47,6 +52,7 @@
               spicetify-nix
               quickshell
               noctalia
+              calc
               ;
           };
         };

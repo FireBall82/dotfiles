@@ -4,8 +4,8 @@
     enable = true;
     settings = {
       user = {
-        userName = "FireBall82";
-        userEmail = "romennegrik82@gmail.com";
+        name = "FireBall82";
+        email = "romennegrik82@gmail.com";
       };
     };
   };
