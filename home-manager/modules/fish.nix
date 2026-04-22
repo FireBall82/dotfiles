@@ -47,7 +47,7 @@
       config = "cd / && cd etc/nixos && sudo nvim configuration.nix";
       rebuild = "sudo nixos-rebuild switch --flake /etc/nixos#diller";
       rebuild-test = "sudo nixos-rebuild test --flake /etc/nixos#diller";
-      rebuild-home = "home-manager switch";
+      rebuild-home = "home-manager switch --flake ~/.config/home-manager#diller";
       rebuild-update = "cd / && cd etc/nixos && sudo nix flake update && sudo nixos-rebuild switch --flake .#diller";
     };
   };

@@ -19,12 +19,16 @@
     settings = {
       # Monitors
       monitor = [
-        "eDP-1, 2560x1600@120, 0x0, 1.6"
-        "HDMI-A-1, 1920x1080@120, -1080x0, 1, transform,3"
+        "eDP-1, 2560x1600@165.04, 0x0, 1.6"
+        "HDMI-A-1, 1920x1080@119.88, -1080x0, 1, transform,3"
       ];
 
       xwayland = {
         force_zero_scaling = true;
+      };
+      cursor = {
+        inactive_timeout = 0;
+        no_hardware_cursors = true;
       };
 
       workspace = [
@@ -54,17 +58,17 @@
 
       # Environment
       env = [
-        "HYPRCURSOR_THEME,rose-pine-hyprcursor"
         "HYPRCURSOR_SIZE,15"
+        "QT_STYLE_OVERRIDE,kvantum"
       ];
 
       # General
       general = {
         gaps_in = 2;
         gaps_out = 15;
+        "col.active_border" = "rgba(cc44ffee) rgba(7b2fd4aa) 45deg";
+        "col.inactive_border" = "rgba(3b1278aa)";
         border_size = 2;
-        "col.active_border" = "rgba(6F92C6ee) rgba(3D5988ee) 45deg";
-        "col.inactive_border" = "rgba(595959aa)";
         resize_on_border = false;
         allow_tearing = true;
         layout = "dwindle";
@@ -74,7 +78,7 @@
       plugin = {
         hyprbars = {
           bar_height = 0;
-          bar_color = "rgba(1e1e1e95)";
+          bar_color = "rgba(32, 23, 6,255)";
           bar_text_size = 10;
           bar_text_font = "Jetbrains Mono Nerd Font Mono Bold";
           bar_button_padding = 5;
@@ -128,7 +132,7 @@
         dim_inactive = false;
         dim_strength = 0.025;
         dim_special = 0.07;
-        active_opacity = 0.95;
+        active_opacity = 0.97;
         inactive_opacity = 0.8;
         fullscreen_opacity = 1;
       };
@@ -169,8 +173,8 @@
       # Misc
       misc = {
         enable_anr_dialog = false;
-        vfr = true;
-        vrr = 1;
+        vfr = false;
+        vrr = 0;
         force_default_wallpaper = 1;
         disable_hyprland_logo = true;
         animate_manual_resizes = false;

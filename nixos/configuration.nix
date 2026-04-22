@@ -41,25 +41,19 @@
     };
   };
   networking.hostName = "nixos";
-  #networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
   #Enable OpenGL
   hardware.graphics = {
     enable = true;
   };
-  #Nvidia driver
   services.xserver.videoDrivers = [
     "nvidia"
     "modesetting"
-    "intel"
   ];
   #nvidia config
   hardware.nvidia = {
     #Modesetting is required.
     modesetting.enable = true;
-    powerManagement.enable = false;
+    powerManagement.enable = true;
     powerManagement.finegrained = false;
     open = false;
     nvidiaSettings = true;
@@ -68,7 +62,7 @@
   };
   #nvidia prime config
   hardware.nvidia.prime = {
-    reverseSync.enable = true;
+    sync.enable = true;
     #Bus ID values
     intelBusId = "PCI:0:0:2";
     nvidiaBusId = "PCI:0:1:0";
@@ -85,9 +79,6 @@
         ControllerMode = "bredr"; # Fix frequent Bluetooth audio dropouts
         Experimental = true;
         FastConnectable = true;
-      };
-      Policy = {
-        AutoEnable = true;
       };
     };
   };
@@ -115,14 +106,11 @@
   services.gnome.gnome-keyring.enable = true;
   # Enable the KDE Plasma Desktop Environment.
   services.desktopManager.plasma6.enable = true;
-  services.greetd = {
+  services.displayManager.sddm = {
     enable = true;
-
-    settings = {
-      default_session = {
-        command = "${pkgs.tuigreet}/bin/tuigreet --cmd start-hyprland";
-      };
-    };
+    wayland.enable = true;
+    theme = "sddm-astronaut-theme";
+    extraPackages = [ pkgs.sddm-astronaut ];
   };
 
   # Create custom SDDM session for user-installed Hyprland
@@ -144,14 +132,7 @@
       ''
     )
   ];
-  services.auto-cpufreq.enable = false;
   services.power-profiles-daemon.enable = true;
-  powerManagement.cpuFreqGovernor = "performance";
-  # Configure keymap in X11
-  services.xserver.xkb = {
-    layout = "us";
-    variant = "";
-  };
   #Enable flakes
   nix.settings.experimental-features = [
     "nix-command"
@@ -207,7 +188,10 @@
     };
 
   #Install steam
-  programs.steam.enable = true;
+  programs.steam = {
+    enable = true;
+    package = pkgs.millennium-steam;
+  };
   #Neovim config
   programs.neovim = {
     enable = true;
@@ -243,6 +227,7 @@
   ];
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
+  nixpkgs.overlays = [ inputs.millennium.overlays.default ];
   environment.systemPackages = with pkgs; [
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     wget
@@ -255,17 +240,17 @@
     stable.librewolf
     daggerfall-unity
     waypaper
-    neovim
     hyprcursor
     inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
     inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default
+    zathura
+    bitwarden-desktop
     libnotify
     sddm-astronaut
     kdePackages.qtmultimedia
     fastfetch
     gamescope
     btop
-    rpm
     cmatrix
     protontricks
     stable.vlc
@@ -298,12 +283,9 @@
     unzip
     redis
     stable.audacity
-    docker
-    docker-compose
     man
     fuzzel
     stable.thunderbird
-    fish
     vscode
     python3
     pavucontrol
@@ -316,10 +298,11 @@
     stable.w3m
     stable.brightnessctl
     tome4
+    protonup-qt
+    heroic-unwrapped
     git
     xwayland-satellite
     subversionClient
-    stable.ollama
     stable.mako
     stable.clipse
     stable.wl-clipboard

@@ -5,12 +5,17 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     stable.url = "github:NixOS/nixpkgs/nixos-25.05";
     spicetify-nix.url = "github:Gerg-L/spicetify-nix";
+    millennium.url = "github:SteamClientHomebrew/Millennium?dir=packages/nix";
     quickshell = {
       url = "git+https://git.outfoxxed.me/outfoxxed/quickshell";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     noctalia = {
       url = "github:noctalia-dev/noctalia-shell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    caelestia-shell = {
+      url = "github:caelestia-dots/shell";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     calc = {
@@ -26,7 +31,9 @@
       spicetify-nix,
       quickshell,
       noctalia,
+      caelestia-shell,
       calc,
+      millennium,
       ...
     }@inputs:
     {
@@ -52,7 +59,9 @@
               spicetify-nix
               quickshell
               noctalia
+              caelestia-shell
               calc
+              millennium
               ;
           };
         };

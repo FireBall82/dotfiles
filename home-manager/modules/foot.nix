@@ -5,7 +5,7 @@
 
     settings = {
       main = {
-        shell = "/run/current-system/sw/bin/fish";
+        shell = "${pkgs.fish}/bin/fish";
         font = "JetBrainsMono Nerd Font:size=11:slant=italic";
         pad = "5x5";
       };
