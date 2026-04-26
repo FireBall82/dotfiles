@@ -169,7 +169,6 @@
       kdePackages.kolourpaint
     ];
   };
-
   # Install firefox.
   programs.firefox.enable = true;
   #Spicetify
@@ -181,6 +180,9 @@
       enable = true;
 
       enabledExtensions = with spicePkgs.extensions; [
+        simpleBeautifulLyrics
+        spicyLyrics
+        powerBar
         adblock
       ];
       theme = spicePkgs.themes.catppuccin;
@@ -195,7 +197,7 @@
   #Neovim config
   programs.neovim = {
     enable = true;
-    defaultEditor = true;
+    defaultEditor = false;
   };
   #docker
   virtualisation.docker.enable = true;
@@ -211,6 +213,7 @@
     };
   };
   environment.sessionVariables = {
+    environment.variables.EDITOR = "hx";
     WLR_NO_HARDWARE_CURSORS = "1";
     NIXOS_OZONE_WL = "1";
     GBM_BACKEND = "nvidia-drm";

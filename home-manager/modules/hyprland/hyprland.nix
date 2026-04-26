@@ -58,6 +58,8 @@
 
       # Environment
       env = [
+        "QT_QPA_PLATFORMTHEME,qt5ct"
+        "QT_QPA_PLATFORM,wayland;xcb"
         "HYPRCURSOR_SIZE,15"
         "QT_STYLE_OVERRIDE,kvantum"
       ];
@@ -66,8 +68,8 @@
       general = {
         gaps_in = 2;
         gaps_out = 15;
-        "col.active_border" = "rgba(cc44ffee) rgba(7b2fd4aa) 45deg";
-        "col.inactive_border" = "rgba(3b1278aa)";
+        "col.active_border" = "rgba(ffffffff) rgba(ffffffff) 45deg";
+        "col.inactive_border" = "rgba(000000ff)";
         border_size = 2;
         resize_on_border = false;
         allow_tearing = true;
@@ -105,7 +107,7 @@
         rounding = 5;
 
         blur = {
-          enabled = true;
+          enabled = false;
           xray = false;
           special = false;
           new_optimizations = true;
@@ -121,7 +123,7 @@
         };
 
         shadow = {
-          enabled = true;
+          enabled = false;
           ignore_window = true;
           range = 30;
           offset = "0 2";
@@ -132,7 +134,7 @@
         dim_inactive = false;
         dim_strength = 0.025;
         dim_special = 0.07;
-        active_opacity = 0.97;
+        active_opacity = 1;
         inactive_opacity = 0.8;
         fullscreen_opacity = 1;
       };
@@ -319,7 +321,7 @@
 
   '';
   home.file.".config/hypr/scripts/yazi.sh".text = ''
-       #!/bin/sh
+       #!/bin/fish
     cat ~/.cache/wal/sequences
     yazi
      

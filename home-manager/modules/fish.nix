@@ -13,7 +13,8 @@
       if test -e ~/.cache/wal/sequences
         cat ~/.cache/wal/sequences
       end
-
+      set -g fish_color_autosuggestion 808080
+       set -Ux EDITOR hx
       # Reload starship with pywal colors
       if test -e ~/.cache/wal/colors-starship.toml
         set -gx STARSHIP_CONFIG ~/.cache/wal/colors-starship.toml
@@ -44,7 +45,7 @@
 
     ];
     shellAliases = {
-      config = "cd / && cd etc/nixos && sudo nvim configuration.nix";
+      config = "cd / && cd etc/nixos && sudoedit configuration.nix";
       rebuild = "sudo nixos-rebuild switch --flake /etc/nixos#diller";
       rebuild-test = "sudo nixos-rebuild test --flake /etc/nixos#diller";
       rebuild-home = "home-manager switch --flake ~/.config/home-manager#diller";

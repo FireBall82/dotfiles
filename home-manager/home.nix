@@ -12,6 +12,8 @@
     ./modules/foot.nix
     ./modules/git.nix
     ./modules/niri/niri.nix
+    ./modules/qt.nix
+    ./modules/helix.nix
   ];
 
   programs.home-manager.enable = true;
