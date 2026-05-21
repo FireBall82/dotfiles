@@ -192,7 +192,6 @@
   #Install steam
   programs.steam = {
     enable = true;
-    package = pkgs.millennium-steam;
   };
   #Neovim config
   programs.neovim = {
@@ -213,7 +212,6 @@
     };
   };
   environment.sessionVariables = {
-    environment.variables.EDITOR = "hx";
     WLR_NO_HARDWARE_CURSORS = "1";
     NIXOS_OZONE_WL = "1";
     GBM_BACKEND = "nvidia-drm";
@@ -237,13 +235,17 @@
     foot
     inputs.calc.packages.x86_64-linux.default
     pywal
-    stable.spotify
+    spotify
+    tgpt
+    hyprshot
     stable.telegram-desktop
     stable.discord
     stable.librewolf
     daggerfall-unity
     waypaper
     hyprcursor
+    ollama
+    openai-whisper
     inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
     inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default
     zathura

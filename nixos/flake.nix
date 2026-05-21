@@ -14,10 +14,6 @@
       url = "github:noctalia-dev/noctalia-shell";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    caelestia-shell = {
-      url = "github:caelestia-dots/shell";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     calc = {
       url = "path:/home/diller/Documents/rust_calc/calc";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -31,7 +27,6 @@
       spicetify-nix,
       quickshell,
       noctalia,
-      caelestia-shell,
       calc,
       millennium,
       ...
@@ -59,7 +54,6 @@
               spicetify-nix
               quickshell
               noctalia
-              caelestia-shell
               calc
               millennium
               ;

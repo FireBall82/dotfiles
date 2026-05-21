@@ -3,6 +3,7 @@
   home.username = "diller";
   home.homeDirectory = "/home/diller";
   home.stateVersion = "24.11";
+
   imports = [
     ./modules/hyprland/hyprland.nix
     ./modules/waybar/waybar.nix
@@ -14,6 +15,7 @@
     ./modules/niri/niri.nix
     ./modules/qt.nix
     ./modules/helix.nix
+    ./modules/noctalia/noctalia.nix
   ];
 
   programs.home-manager.enable = true;

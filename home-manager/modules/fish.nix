@@ -14,7 +14,7 @@
         cat ~/.cache/wal/sequences
       end
       set -g fish_color_autosuggestion 808080
-       set -Ux EDITOR hx
+       set -gx EDITOR hx
       # Reload starship with pywal colors
       if test -e ~/.cache/wal/colors-starship.toml
         set -gx STARSHIP_CONFIG ~/.cache/wal/colors-starship.toml
@@ -53,8 +53,8 @@
     };
   };
   home.packages = with pkgs; [
-    fzf
     grc
+    fzf
   ];
   programs.starship = {
     enable = true;
