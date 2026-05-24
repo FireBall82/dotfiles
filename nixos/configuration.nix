@@ -69,7 +69,7 @@
   };
 
   # Enable networking
-  networking.networkmanager.enable = true;
+  networking.wireless.iwd.enable = true;
   # Bluetooth
   hardware.bluetooth = {
     enable = true;
@@ -233,6 +233,7 @@
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     wget
     foot
+    swayimg
     inputs.calc.packages.x86_64-linux.default
     pywal
     spotify
@@ -243,9 +244,11 @@
     stable.librewolf
     daggerfall-unity
     waypaper
+    imv # image viewer
+    socat
     hyprcursor
     ollama
-    openai-whisper
+    impala
     inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
     inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default
     zathura

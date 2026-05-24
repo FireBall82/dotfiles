@@ -1,26 +1,48 @@
 { config, pkgs, ... }:
 {
-  # home.file.".config/helix/themes/mono.toml".text = ''
-  #      "ui.background" = { }
-  # "ui.text" = { fg = "#cccccc" }
-  # "ui.cursor" = { fg = "#000000", bg = "#ffffff" }
-  # "ui.selection" = { bg = "#333333" }
-
-  # "comment" = { fg = "#666666", modifiers = ["italic"] }
-  # "keyword" = { fg = "#ffffff" }
-  # "string" = { fg = "#aaaaaa" }
-  # "type" = { fg = "#dddddd" }
-  # "function" = { fg = "#eeeeee" }
-  # '';
   programs.helix = {
     enable = true;
     defaultEditor = true;
     settings = {
       theme = "amberwood_transparent";
-      editor.cursor-shape = {
-        normal = "block";
-        insert = "bar";
-        select = "underline";
+      editor = {
+        line-number = "relative";
+        cursorline = true;
+        auto-save = true;
+        completion-trigger-len = 1;
+        color-modes = true;
+        indent-guides.render = true;
+        soft-wrap.enable = false;
+        cursor-shape = {
+          normal = "block";
+          insert = "bar";
+          select = "underline";
+        };
+        lsp = {
+          display-inlay-hints = true;
+          display-messages = true;
+        };
+        statusline = {
+          left = [
+            "mode"
+            "spinner"
+            "file-name"
+            "read-only-indicator"
+            "file-modification-indicator"
+          ];
+          right = [
+            "diagnostics"
+            "selections"
+            "position"
+            "file-encoding"
+            "file-type"
+          ];
+          separator = "│";
+        };
+        file-picker = {
+          hidden = false;
+          git-ignore = true;
+        };
       };
     };
     languages = {
@@ -47,7 +69,17 @@
         {
           name = "python";
           auto-format = true;
-          formatter.command = "${pkgs.ruff}/bin/ruff";
+          language-servers = [
+            "pyright"
+            "ruff"
+          ];
+          formatter = {
+            command = "${pkgs.ruff}/bin/ruff";
+            args = [
+              "format"
+              "-"
+            ];
+          };
         }
         {
           name = "rust";
@@ -62,6 +94,5 @@
         "ui.background" = { };
       };
     };
-
   };
 }

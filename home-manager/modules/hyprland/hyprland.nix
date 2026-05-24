@@ -19,6 +19,7 @@
       monitor = [
         "eDP-1, 2560x1600@165.04, 0x0, 1.6"
         "HDMI-A-1, 1920x1080@119.88, -1080x0, 1, transform,3"
+        ", preferred, auto, 1"
       ];
 
       xwayland = {
@@ -67,6 +68,7 @@
         "QT_QPA_PLATFORMTHEME,qt5ct"
         "QT_QPA_PLATFORM,wayland;xcb"
         "HYPRCURSOR_SIZE,15"
+        "XCURSOR_SIZE, 24"
         "QT_STYLE_OVERRIDE,kvantum"
       ];
 
@@ -179,6 +181,7 @@
       device = {
         name = "epic-mouse-v1";
         sensitivity = -0.3;
+        accel_profile = "flat";
       };
 
       render = {
@@ -220,6 +223,7 @@
           "$mainMod, M, exec, hyprctl dispatch exit"
           # "$mainMod, W, hyprexpo:expo, toggle"
           "$mainMod, P, exec, hyprshot -m output"
+          "$mainMod SHIFT, P, exec, hyprshot -m region"
 
           # Focus
           "$mainMod, left, movefocus, l"

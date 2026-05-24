@@ -7,6 +7,24 @@
 {
   programs.fish = {
     enable = true;
+    functions = {
+      fih = ''
+        if test (count $argv) -eq 0
+          echo "usage: fih <command> [args...]"
+          return 1
+        end
+
+        $argv
+        set cmd_status $status
+
+        pw-play --volume 2.0 ~/Music/fih.mp3 &
+        set sound_pid $last_pid
+        swayimg -f -a fih-caller -c info.show=no -s fit ~/Pictures/fih.jpg
+        kill $sound_pid 2>/dev/null
+
+        return $cmd_status
+      '';
+    };
     interactiveShellInit = ''
           set fish_greeting # Disable greeting
           # Source pywal colors
