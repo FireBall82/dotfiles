@@ -10,6 +10,8 @@
   imports = [
     inputs.spicetify-nix.nixosModules.default
     ./hardware-configuration.nix
+    ./packages.nix
+    ./overlays/default.nix
   ];
 
   # Bootloader.
@@ -225,95 +227,6 @@
   };
   fonts.packages = with pkgs; [
     nerd-fonts.jetbrains-mono
-  ];
-  # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
-  nixpkgs.overlays = [ inputs.millennium.overlays.default ];
-  environment.systemPackages = with pkgs; [
-    vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-    wget
-    foot
-    swayimg
-    inputs.calc.packages.x86_64-linux.default
-    pywal
-    spotify
-    tgpt
-    hyprshot
-    stable.telegram-desktop
-    stable.discord
-    stable.librewolf
-    daggerfall-unity
-    waypaper
-    imv # image viewer
-    socat
-    hyprcursor
-    ollama
-    impala
-    inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
-    inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default
-    zathura
-    bitwarden-desktop
-    libnotify
-    sddm-astronaut
-    kdePackages.qtmultimedia
-    fastfetch
-    gamescope
-    btop
-    cmatrix
-    protontricks
-    stable.vlc
-    playerctl
-    yazi
-    vesktop
-    stable.gparted
-    obs-studio
-    #hyprland plugins dependencies
-    #------:
-    cairo
-    cpio
-    meson
-    gcc
-    pango
-    gtk4
-    cmake
-    #-------
-    tor
-    torsocks
-    torctl
-    pwvucontrol
-    lshw
-    cava
-    waybar
-    pywalfox-native
-    stable.zoom-us
-    lenovo-legion
-    hyprpaper
-    unzip
-    redis
-    stable.audacity
-    man
-    fuzzel
-    stable.thunderbird
-    vscode
-    python3
-    pavucontrol
-    wine64
-    stable.ranger
-    stable.calcurse
-    gccgo14
-    stable.tree
-    stable.curl
-    stable.w3m
-    stable.brightnessctl
-    tome4
-    protonup-qt
-    heroic-unwrapped
-    git
-    xwayland-satellite
-    subversionClient
-    stable.mako
-    stable.clipse
-    stable.wl-clipboard
   ];
 
   services.openssh = {

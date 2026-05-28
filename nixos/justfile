@@ -1,0 +1,284 @@
+hostname := "diller"
+pkgs_file := "/etc/nixos/packages.nix"
+
+# show available commands
+default:
+    @just --list
+
+# rebuild
+rebuild:
+    sudo nixos-rebuild switch --flake /etc/nixos#{{hostname}}
+
+# update flake inputs and rebuild
+up:
+    nix flake update /etc/nixos
+    just rebuild
+
+# dry run — show what would change
+diff:
+    sudo nixos-rebuild dry-activate --flake /etc/nixos#{{hostname}}
+
+# search nixpkgs
+search query:
+    nix search nixpkgs {{query}} 2>/dev/null
+
+# add one or more packages — just add ripgrep bat
+add *pkgs:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    PKGS_FILE="{{pkgs_file}}"
+    for pkg in {{pkgs}}; do
+        if ! nix eval "nixpkgs#$pkg" --apply "x: x.name" &>/dev/null; then
+            echo "✗ '$pkg' not found — try: n search $pkg"
+            continue
+        fi
+        if grep -q "$pkg" "$PKGS_FILE"; then
+            echo "~ '$pkg' already in config"
+            continue
+        fi
+        tmpfile=$(mktemp)
+        sed "s|  ];|    $pkg\n  ];|" "$PKGS_FILE" > "$tmpfile"
+        sudo cp "$tmpfile" "$PKGS_FILE"
+        rm "$tmpfile"
+        echo "✓ added '$pkg'"
+    done
+    echo ""
+    just rebuild
+
+# remove a package
+remove pkg:
+    #!/usr/bin/env bash
+    PKGS_FILE="{{pkgs_file}}"
+    if grep -q "{{pkg}}" "$PKGS_FILE"; then
+        tmpfile=$(mktemp)
+        sed "/{{pkg}}/d" "$PKGS_FILE" > "$tmpfile"
+        sudo cp "$tmpfile" "$PKGS_FILE"
+        rm "$tmpfile"
+        echo "✓ removed '{{pkg}}'"
+     else
+        echo "✗ '{{pkg}}' not found in config"
+    fi
+
+# activate a local overlay for a package
+overlay pkg:
+    #!/usr/bin/env bash
+    OVERLAY_FILE="/etc/nixos/overlays/default.nix"
+    if [ ! -f "$OVERLAY_FILE" ]; then
+        sudo mkdir -p /etc/nixos/overlays
+        printf '{ ... }:\n{\n  nixpkgs.overlays = [\n  ];\n}\n' | sudo tee "$OVERLAY_FILE" > /dev/null
+    fi
+    if grep -q "{{pkg}}" "$OVERLAY_FILE"; then
+        echo "~ overlay for '{{pkg}}' already exists"
+        exit 0
+    fi
+    tmpfile=$(mktemp)
+    sed "s|nixpkgs.overlays = \[|nixpkgs.overlays = [\n    (final: prev: { {{pkg}} = final.callPackage ./{{pkg}}/default.nix {}; })|" \
+        "$OVERLAY_FILE" > "$tmpfile"
+    sudo cp "$tmpfile" "$OVERLAY_FILE"
+    rm "$tmpfile"
+    echo "✓ overlay activated for {{pkg}}"
+    just rebuild
+
+# remove a local overlay
+dis-overlay pkg:
+    #!/usr/bin/env bash
+    OVERLAY_DIR="/etc/nixos/overlays/{{pkg}}"
+    if [ -d "$OVERLAY_DIR" ]; then
+        sudo rm -rf "$OVERLAY_DIR"
+        tmpfile=$(mktemp)
+        grep -v "{{pkg}}" /etc/nixos/overlays/default.nix > "$tmpfile"
+        sudo cp "$tmpfile" /etc/nixos/overlays/default.nix
+        rm "$tmpfile"
+        echo "✓ overlay removed for {{pkg}}"
+        just rebuild
+    else
+        echo "✗ no overlay found for {{pkg}}"
+    fi
+
+# interactive package browser
+list:
+    #!/usr/bin/env bash
+    clear
+    trap 'clear' EXIT
+
+    while true; do
+        PKG=$(grep -vE "^\s*#|^\s*$|\{|\}|with pkgs|systemPackages|pkgs,|inputs,|\.\.\." /etc/nixos/packages.nix \
+            | sed 's/^\s*//' \
+            | sed 's/\s*#.*//' \
+            | sed 's/;//' \
+            | grep -vE "^\s*$" \
+            | fzf \
+                --height 100% \
+                --layout=reverse-list \
+                --prompt="search: " \
+                --info=inline \
+                --bind=resize:clear-screen \
+                --header="select a package  |  esc to quit")
+
+        [ -z "$PKG" ] && exit 0
+
+        CLEAN=$(echo "$PKG" \
+            | sed 's/^stable\.//' \
+            | sed 's/^kdePackages\.//' \
+            | sed 's/^inputs\.[^ ]* //')
+
+        while true; do
+            clear
+
+            # check if overlay exists to show correct option
+            OVERLAY_EXISTS=false
+            [ -d "/etc/nixos/overlays/$CLEAN" ] && OVERLAY_EXISTS=true
+
+            if [ "$OVERLAY_EXISTS" = true ]; then
+                OVERLAY_OPTION="dis-overlay"
+            else
+                OVERLAY_OPTION="overlay"
+            fi
+
+            result=$(printf "describe\nopen in yazi\nshow deps\ncopy to clipboard\nopen homepage\nedit build.nix\ncheck update\n$OVERLAY_OPTION\n← back to packages" \
+                | fzf \
+                    --height 40% \
+                    --layout=reverse-list \
+                    --prompt="$PKG > " \
+                    --bind=resize:clear-screen \
+                    --expect=esc \
+                    --info=inline)
+
+            key=$(echo "$result" | head -1)
+            action=$(echo "$result" | tail -1)
+
+            [ "$key" = "esc" ] || [ "$action" = "← back to packages" ] && break
+            [ -z "$action" ] && continue
+
+            case "$action" in
+                "describe")
+                    clear
+                    echo ""
+                    nix eval "nixpkgs#$CLEAN.meta.description" --raw 2>/dev/null || echo "  no description found"
+                    echo ""
+                    read -r -p "  press enter to continue..."
+                    ;;
+
+                "open in yazi")
+                    STORE=$(nix path-info "nixpkgs#$CLEAN" 2>/dev/null)
+                    if [ -n "$STORE" ]; then
+                        yazi "$STORE"
+                    else
+                        clear
+                        echo ""
+                        echo "  ✗ couldn't resolve store path"
+                        read -r -p "  press enter to continue..."
+                    fi
+                    ;;
+
+                "show deps")
+                    clear
+                    nix-store --query --references \
+                        "$(nix path-info "nixpkgs#$CLEAN" 2>/dev/null)" 2>/dev/null \
+                        | grep -oP '(?<=/nix/store/)[a-z0-9]+-\K[a-zA-Z][^/]+' \
+                        | sort -u \
+                        | fzf \
+                            --height 100% \
+                            --layout=reverse-list \
+                            --prompt="deps of $PKG > " \
+                            --bind=resize:clear-screen \
+                            --header="esc to go back"
+                    ;;
+
+                "copy to clipboard")
+                    echo -n "$PKG" | wl-copy
+                    clear
+                    echo ""
+                    echo "  ✓ copied '$PKG' to clipboard"
+                    echo ""
+                    read -r -p "  press enter to continue..."
+                    ;;
+
+                "open homepage")
+                    clear
+                    echo ""
+                    echo "  finding homepage..."
+                    URL=$(nix eval "nixpkgs#$CLEAN.meta.homepage" --raw 2>/dev/null)
+                    if [ -n "$URL" ]; then
+                        echo "  opening $URL"
+                        xdg-open "$URL" 2>/dev/null &
+                    else
+                        echo "  ✗ no homepage found for $CLEAN"
+                        read -r -p "  press enter to continue..."
+                    fi
+                    ;;
+
+                "edit build.nix")
+                    clear
+                    echo ""
+                    echo "  finding package file..."
+                    POSITION=$(nix eval "nixpkgs#$CLEAN.meta.position" --raw 2>/dev/null)
+                    if [ -n "$POSITION" ]; then
+                        FILE=$(echo "$POSITION" | cut -d: -f1)
+                        LINE=$(echo "$POSITION" | cut -d: -f2)
+                        REL=$(echo "$FILE" | sed 's|/nix/store/[^/]*/||')
+                        OVERLAY_DIR="/etc/nixos/overlays/$CLEAN"
+                        OVERLAY_FILE="$OVERLAY_DIR/default.nix"
+                        if [ ! -f "$OVERLAY_FILE" ]; then
+                            echo "  fetching from nixpkgs..."
+                            sudo mkdir -p "$OVERLAY_DIR"
+                            curl -s "https://raw.githubusercontent.com/NixOS/nixpkgs/nixos-unstable/$REL" \
+                                | sudo tee "$OVERLAY_FILE" > /dev/null
+                            sudo chmod 644 "$OVERLAY_FILE"
+                            sudo chown "$USER:users" "$OVERLAY_FILE"
+                            echo "  ✓ saved to overlays/$CLEAN/default.nix"
+                        else
+                            echo "  ~ using existing overlay file"
+                        fi
+                        hx +"$LINE" "$OVERLAY_FILE"
+                    else
+                        echo "  ✗ couldn't find source for $CLEAN"
+                        read -r -p "  press enter to continue..."
+                    fi
+                    ;;
+
+                "check update")
+                    clear
+                    echo ""
+                    echo "  fetching current version..."
+                    CURRENT=$(nix eval "nixpkgs#$CLEAN.version" --raw 2>/dev/null || echo "unknown")
+                    echo "  fetching latest unstable..."
+                    LATEST=$(nix eval "github:NixOS/nixpkgs/nixos-unstable#$CLEAN.version" --raw 2>/dev/null || echo "unknown")
+                    clear
+                    echo ""
+                    echo "  package  :  $PKG"
+                    echo "  current  :  $CURRENT"
+                    echo "  unstable :  $LATEST"
+                    echo ""
+                    if [ "$CURRENT" = "unknown" ]; then
+                        echo "  ✗ couldn't resolve — may use stable. or inputs. prefix"
+                    elif [ "$CURRENT" = "$LATEST" ]; then
+                        echo "  ✓ up to date"
+                    else
+                        echo "  ↑ update available"
+                    fi
+                    echo ""
+                    read -r -p "  press enter to continue..."
+                    ;;
+
+                "overlay")
+                    just overlay "$CLEAN"
+                    read -r -p "  press enter to continue..."
+                    ;;
+
+                "dis-overlay")
+                    clear
+                    echo ""
+                    sudo rm -rf "/etc/nixos/overlays/$CLEAN"
+                    tmpfile=$(mktemp)
+                    grep -v "$CLEAN" /etc/nixos/overlays/default.nix > "$tmpfile"
+                    sudo cp "$tmpfile" /etc/nixos/overlays/default.nix
+                    rm "$tmpfile"
+                    echo "  ✓ overlay removed for $CLEAN"
+                    echo ""
+                    read -r -p "  rebuild now? (y/n) "
+                    [[ $REPLY == "y" ]] && just rebuild
+                    ;;
+            esac
+        done
+    done
