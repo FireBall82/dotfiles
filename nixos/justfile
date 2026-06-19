@@ -7,7 +7,7 @@ default:
 
 # rebuild
 rebuild:
-    sudo nixos-rebuild switch --flake /etc/nixos#{{hostname}}
+    sudo nixos-rebuild switch --flake /etc/nixos#{{ hostname }}
 
 # update flake inputs and rebuild
 up:
@@ -16,18 +16,18 @@ up:
 
 # dry run — show what would change
 diff:
-    sudo nixos-rebuild dry-activate --flake /etc/nixos#{{hostname}}
+    sudo nixos-rebuild dry-activate --flake /etc/nixos#{{ hostname }}
 
 # search nixpkgs
 search query:
-    nix search nixpkgs {{query}} 2>/dev/null
+    nix search nixpkgs {{ query }} 2>/dev/null
 
 # add one or more packages — just add ripgrep bat
 add *pkgs:
     #!/usr/bin/env bash
     set -euo pipefail
-    PKGS_FILE="{{pkgs_file}}"
-    for pkg in {{pkgs}}; do
+    PKGS_FILE="{{ pkgs_file }}"
+    for pkg in {{ pkgs }}; do
         if ! nix eval "nixpkgs#$pkg" --apply "x: x.name" &>/dev/null; then
             echo "✗ '$pkg' not found — try: n search $pkg"
             continue
@@ -48,15 +48,15 @@ add *pkgs:
 # remove a package
 remove pkg:
     #!/usr/bin/env bash
-    PKGS_FILE="{{pkgs_file}}"
-    if grep -q "{{pkg}}" "$PKGS_FILE"; then
+    PKGS_FILE="{{ pkgs_file }}"
+    if grep -q "{{ pkg }}" "$PKGS_FILE"; then
         tmpfile=$(mktemp)
-        sed "/{{pkg}}/d" "$PKGS_FILE" > "$tmpfile"
+        sed "/{{ pkg }}/d" "$PKGS_FILE" > "$tmpfile"
         sudo cp "$tmpfile" "$PKGS_FILE"
         rm "$tmpfile"
-        echo "✓ removed '{{pkg}}'"
+        echo "✓ removed '{{ pkg }}'"
      else
-        echo "✗ '{{pkg}}' not found in config"
+        echo "✗ '{{ pkg }}' not found in config"
     fi
 
 # activate a local overlay for a package
@@ -67,42 +67,241 @@ overlay pkg:
         sudo mkdir -p /etc/nixos/overlays
         printf '{ ... }:\n{\n  nixpkgs.overlays = [\n  ];\n}\n' | sudo tee "$OVERLAY_FILE" > /dev/null
     fi
-    if grep -q "{{pkg}}" "$OVERLAY_FILE"; then
-        echo "~ overlay for '{{pkg}}' already exists"
+    if grep -q "{{ pkg }}" "$OVERLAY_FILE"; then
+        echo "~ overlay for '{{ pkg }}' already exists"
         exit 0
     fi
     tmpfile=$(mktemp)
-    sed "s|nixpkgs.overlays = \[|nixpkgs.overlays = [\n    (final: prev: { {{pkg}} = final.callPackage ./{{pkg}}/default.nix {}; })|" \
+    sed "s|nixpkgs.overlays = \[|nixpkgs.overlays = [\n    (final: prev: { {{ pkg }} = final.callPackage ./{{ pkg }}/default.nix {}; })|" \
         "$OVERLAY_FILE" > "$tmpfile"
     sudo cp "$tmpfile" "$OVERLAY_FILE"
     rm "$tmpfile"
-    echo "✓ overlay activated for {{pkg}}"
+    echo "✓ overlay activated for {{ pkg }}"
     just rebuild
 
 # remove a local overlay
 dis-overlay pkg:
     #!/usr/bin/env bash
-    OVERLAY_DIR="/etc/nixos/overlays/{{pkg}}"
+    OVERLAY_DIR="/etc/nixos/overlays/{{ pkg }}"
     if [ -d "$OVERLAY_DIR" ]; then
         sudo rm -rf "$OVERLAY_DIR"
         tmpfile=$(mktemp)
-        grep -v "{{pkg}}" /etc/nixos/overlays/default.nix > "$tmpfile"
+        grep -v "{{ pkg }}" /etc/nixos/overlays/default.nix > "$tmpfile"
         sudo cp "$tmpfile" /etc/nixos/overlays/default.nix
         rm "$tmpfile"
-        echo "✓ overlay removed for {{pkg}}"
+        echo "✓ overlay removed for {{ pkg }}"
         just rebuild
     else
-        echo "✗ no overlay found for {{pkg}}"
+        echo "✗ no overlay found for {{ pkg }}"
     fi
+# garbage collect with space preview
+gc:
+    #!/usr/bin/env bash
+    echo ""
+    echo "  calculating space to free..."
+    BEFORE=$(nix path-info --all 2>/dev/null | xargs du -sh 2>/dev/null | tail -1 | cut -f1 || echo "?")
+    echo "  store size: $BEFORE"
+    echo ""
+    read -r -p "  nuke all old generations and collect garbage? (y/n) "
+    if [[ $REPLY == "y" ]]; then
+        sudo nix-collect-garbage -d
+        AFTER=$(nix path-info --all 2>/dev/null | xargs du -sh 2>/dev/null | tail -1 | cut -f1 || echo "?")
+        echo ""
+        echo "  before: $BEFORE"
+        echo "  after:  $AFTER"
+    else
+        echo "  cancelled"
+    fi
+    echo ""
+generations:
+    #!/usr/bin/env bash
+    clear
+    trap 'clear' EXIT
+    GEN=$(sudo nix-env --list-generations --profile /nix/var/nix/profiles/system \
+        | fzf \
+            --height 100% \
+            --layout=reverse-list \
+            --prompt="generation > " \
+            --bind=resize:clear-screen \
+            --header="select a generation to roll back to  |  esc to quit" \
+            --info=inline)
+    [ -z "$GEN" ] && exit 0
+    NUM=$(echo "$GEN" | awk '{print $1}')
+    echo ""
+    echo "  switching to generation $NUM..."
+    sudo nix-env --switch-generation "$NUM" --profile /nix/var/nix/profiles/system
+    sudo /nix/var/nix/profiles/system-$NUM-link/activate
+    echo "  ✓ switched to generation $NUM"
+    echo ""
+    read -r -p "  press enter to continue..."
+broken:
+    #!/usr/bin/env bash
+    echo ""
+    echo "  scanning packages..."
+    echo ""
+    FAILED=0
+    while IFS= read -r pkg; do
+        [ -z "$pkg" ] && continue
+        # skip lines that are clearly not packages
+        echo "$pkg" | grep -qE "^(stable,|inputs\.|nixpkgs\.|environment\.|config\.|kdePackages\.)" && {
+            # handle kdePackages and inputs separately
+            echo "$pkg" | grep -qE "^kdePackages\." || continue
+        }
+        CLEAN=$(echo "$pkg" \
+            | sed 's/^stable\.//' \
+            | sed 's/^kdePackages\.//' \
+            | sed 's/^inputs\.[^ ]* //')
+        # skip anything that still has special chars — not a plain package name
+        echo "$CLEAN" | grep -qE "[=,\.\$\{]" && continue
+        if ! nix eval "nixpkgs#$CLEAN.name" --raw &>/dev/null; then
+            echo "  ✗ $pkg"
+            FAILED=$((FAILED + 1))
+        fi
+    done < <(grep -vE "^\s*#|^\s*$|\{|\}|with pkgs|systemPackages|pkgs,|inputs,|\.\.\.|allowUnfree|legacyPackages|config\.|stable," /etc/nixos/packages.nix \
+        | sed 's/^\s*//' \
+        | sed 's/\s*#.*//' \
+        | sed 's/;//' \
+        | grep -vE "^\s*$|=|,|\$")
+    echo ""
+    if [ "$FAILED" -eq 0 ]; then
+        echo "  ✓ all packages evaluate fine"
+    else
+        echo "  $FAILED failed"
+    fi
+    echo ""
 
+# show all listening ports with service names
+ports:
+    #!/usr/bin/env bash
+    echo ""
+    printf "  %-10s %-10s %-20s %s\n" "PROTO" "PORT" "SERVICE" "ADDRESS"
+    printf "  %-10s %-10s %-20s %s\n" "-----" "----" "-------" "-------"
+    ss -tlnup 2>/dev/null | tail -n +2 | while read -r line; do
+        proto=$(echo "$line" | awk '{print $1}')
+        addr=$(echo "$line" | awk '{print $4}')
+        port=$(echo "$addr" | rev | cut -d: -f1 | rev)
+        svc=$(echo "$line" | grep -oP 'users:\(\("\K[^"]+' || echo "unknown")
+        printf "  %-10s %-10s %-20s %s\n" "$proto" "$port" "$svc" "$addr"
+    done
+    echo ""
+
+# interactive service manager
+services:
+    #!/usr/bin/env bash
+    clear
+    trap 'clear' EXIT
+    while true; do
+        SVC=$(systemctl list-units --type=service --all --no-pager --no-legend \
+            | awk '{print $1, $2, $3, $4}' \
+            | sed 's/●//g' \
+            | sed 's/\xe2\x97\x8f//g' \
+            | grep -v "^\s*$" \
+            | fzf \
+                --height 100% \
+                --layout=reverse-list \
+                --prompt="service > " \
+                --bind=resize:clear-screen \
+                --bind="esc:abort" \
+                --header="select a service  |  esc to quit" \
+                --info=inline)
+        [ -z "$SVC" ] && exit 0
+        NAME=$(echo "$SVC" | awk '{print $1}' | tr -d '●')
+
+        while true; do
+            clear
+            result=$(printf "status\nstart\nstop\nrestart\nlogs\nlogs (follow)\n← back" \
+                | fzf \
+                    --height 30% \
+                    --layout=reverse-list \
+                    --prompt="$NAME > " \
+                    --expect=esc \
+                    --bind=resize:clear-screen \
+                    --info=inline)
+            key=$(echo "$result" | head -1)
+            action=$(echo "$result" | tail -1)
+            [ "$key" = "esc" ] || [ "$action" = "← back" ] && break
+            [ -z "$action" ] && continue
+            case "$action" in
+                "status")
+                    clear
+                    systemctl status "$NAME" | less -R
+                    ;;
+                "start")
+                    clear
+                    sudo systemctl start "$NAME" && echo "  ✓ started $NAME"
+                    read -r -p "  press enter to continue..."
+                    ;;
+                "stop")
+                    clear
+                    sudo systemctl stop "$NAME" && echo "  ✓ stopped $NAME"
+                    read -r -p "  press enter to continue..."
+                    ;;
+                "restart")
+                    clear
+                    sudo systemctl restart "$NAME" && echo "  ✓ restarted $NAME"
+                    read -r -p "  press enter to continue..."
+                    ;;
+                "logs")
+                    clear
+                    journalctl -u "$NAME" --no-pager | less -R
+                    ;;
+                "logs (follow)")
+                    clear
+                    echo "  press ctrl+c to stop following"
+                    echo ""
+                    journalctl -u "$NAME" -f
+                    ;;
+            esac
+        done
+    done
+# tail logs for any service
+logs:
+    #!/usr/bin/env bash
+    clear
+    trap 'clear' EXIT
+    SVC=$(systemctl list-units --type=service --all --no-pager --no-legend \
+    | sed 's/●//g' \
+    | grep -v "^\s*$" \
+    | column -t \
+    | fzf \
+        --height 100% \
+        --layout=reverse-list \
+        --prompt="service > " \
+        --bind=resize:clear-screen \
+        --bind="esc:abort" \
+        --header="select a service  |  esc to quit" \
+        --info=inline)
+        [ -z "$SVC" ] && exit 0
+    NAME=$(echo "$SVC" | tr -d '●')
+    clear
+    echo "  tailing $NAME — ctrl+c to exit"
+    echo ""
+    journalctl -u "$NAME" -f
+
+    # explain last nixos-rebuild error in plain english
+
+wtf:
+    #!/usr/bin/env bash
+    echo ""
+    echo "  grabbing last build error..."
+    ERROR=$(sudo nixos-rebuild switch --flake /etc/nixos#{{ hostname }} 2>&1 | tail -50)
+    if [ -z "$ERROR" ]; then
+        echo "  no recent error found"
+        exit 0
+    fi
+    echo "  asking ollama..."
+    echo ""
+    ollama run llama3.2 "explain this error to me in terms quick efficent and dont suggest follow up help$ERROR"
+    echo ""
 # interactive package browser
+
 list:
     #!/usr/bin/env bash
     clear
     trap 'clear' EXIT
 
     while true; do
-        PKG=$(grep -vE "^\s*#|^\s*$|\{|\}|with pkgs|systemPackages|pkgs,|inputs,|\.\.\." /etc/nixos/packages.nix \
+        PKG=$(grep -vE "^\s*#|^\s*$|^\s*\{|^\s*\}|^\s*\]|with pkgs|systemPackages|pkgs,|inputs,|\.\.\.|nixpkgs\.|stable,$" packages.nix \
             | sed 's/^\s*//' \
             | sed 's/\s*#.*//' \
             | sed 's/;//' \
@@ -127,15 +326,16 @@ list:
 
             # check if overlay exists to show correct option
             OVERLAY_EXISTS=false
-            [ -d "/etc/nixos/overlays/$CLEAN" ] && OVERLAY_EXISTS=true
-
+            [ -f "/etc/nixos/overlays/default.nix" ] && \
+            grep -q "$CLEAN" /etc/nixos/overlays/default.nix 2>/dev/null && \
+            OVERLAY_EXISTS=true
             if [ "$OVERLAY_EXISTS" = true ]; then
                 OVERLAY_OPTION="dis-overlay"
             else
                 OVERLAY_OPTION="overlay"
             fi
 
-            result=$(printf "describe\nopen in yazi\nshow deps\ncopy to clipboard\nopen homepage\nedit build.nix\ncheck update\n$OVERLAY_OPTION\n← back to packages" \
+            result=$(printf "describe\nopen in yazi\nshow deps\nreverse deps\ncopy to clipboard\ncopy store path\nopen homepage\nedit build.nix\ncheck update\nbenchmark\ntoggle unfree\npin version\n$OVERLAY_OPTION\n← back to packages" \
                 | fzf \
                     --height 40% \
                     --layout=reverse-list \
@@ -279,6 +479,122 @@ list:
                     read -r -p "  rebuild now? (y/n) "
                     [[ $REPLY == "y" ]] && just rebuild
                     ;;
+                    "copy store path")
+    clear
+    echo ""
+    echo "  resolving store path..."
+    STORE=$(nix path-info "nixpkgs#$CLEAN" 2>/dev/null)
+    if [ -n "$STORE" ]; then
+        echo -n "$STORE" | wl-copy
+        echo "  ✓ copied $STORE"
+    else
+        echo "  ✗ couldn't resolve store path"
+    fi
+    echo ""
+    read -r -p "  press enter to continue..."
+    ;;
+
+    "reverse deps")
+    clear
+    echo ""
+    echo "  finding what depends on $CLEAN..."
+    STORE=$(nix path-info "nixpkgs#$CLEAN" 2>/dev/null)
+    if [ -n "$STORE" ]; then
+        nix-store --query --referrers "$STORE" 2>/dev/null \
+            | grep -oP '(?<=/nix/store/)[a-z0-9]+-\K[a-zA-Z][^/]+' \
+            | sort -u \
+            | fzf \
+                --height 100% \
+                --layout=reverse-list \
+                --prompt="dependents of $PKG > " \
+                --bind=resize:clear-screen \
+                --header="esc to go back"
+    else
+        echo "  ✗ couldn't resolve store path"
+        read -r -p "  press enter to continue..."
+    fi
+    ;;
+
+    "open config")
+    clear
+    echo ""
+    # search your nixos config for any mention of this package
+    MATCHES=$(grep -rn "$CLEAN" /etc/nixos/ \
+        --include="*.nix" \
+        --exclude-dir=overlays \
+        2>/dev/null \
+        | grep -v "packages.nix" \
+        | fzf \
+            --height 100% \
+            --layout=reverse-list \
+            --prompt="config refs to $PKG > " \
+            --bind=resize:clear-screen \
+            --header="select a line to jump to  |  esc to go back")
+    if [ -n "$MATCHES" ]; then
+        FILE=$(echo "$MATCHES" | cut -d: -f1)
+        LINE=$(echo "$MATCHES" | cut -d: -f2)
+        hx +"$LINE" "$FILE"
+    fi
+    ;;
+
+    "pin version")
+    clear
+    echo ""
+    echo "  resolving current version..."
+    VERSION=$(nix eval "nixpkgs#$CLEAN.version" --raw 2>/dev/null)
+    if [ -z "$VERSION" ]; then
+        echo "  ✗ couldn't resolve version for $CLEAN"
+        read -r -p "  press enter to continue..."
+        continue
+    fi
+    OVERLAY_DIR="/etc/nixos/overlays/$CLEAN"
+    OVERLAY_FILE="$OVERLAY_DIR/default.nix"
+    PIN_FILE="/etc/nixos/overlays/pins.nix"
+    # create pins file if it doesn't exist
+    if [ ! -f "$PIN_FILE" ]; then
+        printf '{ pkgs, ... }:\n{\n  nixpkgs.overlays = [\n    (final: prev: {\n    })\n  ];\n}\n' \
+            | sudo tee "$PIN_FILE" > /dev/null
+    fi
+    if grep -q "$CLEAN" "$PIN_FILE"; then
+        echo "  ~ $CLEAN already pinned"
+    else
+        tmpfile=$(mktemp)
+        sed "s|    (final: prev: {|    (final: prev: {\n      $CLEAN = prev.$CLEAN.overrideAttrs (_: { version = \"$VERSION\"; });|" \
+            "$PIN_FILE" > "$tmpfile"
+        sudo cp "$tmpfile" "$PIN_FILE"
+        rm "$tmpfile"
+        echo "  ✓ pinned $CLEAN to $VERSION"
+        just rebuild
+    fi
+    echo ""
+    read -r -p "  press enter to continue..."
+    ;;
+
+    "benchmark")
+    clear
+    echo ""
+    # find the binary name — usually same as package name
+    STORE=$(nix path-info "nixpkgs#$CLEAN" 2>/dev/null)
+    if [ -n "$STORE" ]; then
+        BIN=$(ls "$STORE/bin/" 2>/dev/null | fzf \
+            --height 40% \
+            --layout=reverse-list \
+            --prompt="pick binary > " \
+            --bind=resize:clear-screen \
+            --header="select binary to benchmark")
+        if [ -n "$BIN" ]; then
+            echo "  benchmarking $BIN..."
+            echo ""
+            hyperfine "$STORE/bin/$BIN --version" 2>/dev/null \
+                || hyperfine "$STORE/bin/$BIN --help" 2>/dev/null \
+                || echo "  ✗ couldn't benchmark — binary may need arguments"
+        fi
+    else
+        echo "  ✗ couldn't resolve store path"
+    fi
+    echo ""
+    read -r -p "  press enter to continue..."
+    ;;
             esac
         done
     done

@@ -25,6 +25,9 @@
         return $cmd_status
       '';
     };
+    shellInit = ''
+      set -x GEMINI_API_KEY "AQ.Ab8RN6L4t-NoHui3zxW4hoQ7Mzu3DTIu-2rjmwqKlZXhfGzOYg"
+    '';
     interactiveShellInit = ''
           set fish_greeting # Disable greeting
           # Source pywal colors
@@ -33,7 +36,7 @@
       end
       set -g fish_color_autosuggestion 808080
        set -gx EDITOR hx
-      # Reload starship with pywal colors
+             # Reload starship with pywal colors
       if test -e ~/.cache/wal/colors-starship.toml
         set -gx STARSHIP_CONFIG ~/.cache/wal/colors-starship.toml
       end
@@ -68,6 +71,7 @@
       rebuild-test = "sudo nixos-rebuild test --flake /etc/nixos#diller";
       rebuild-home = "home-manager switch --flake ~/.config/home-manager#diller";
       rebuild-update = "cd / && cd etc/nixos && sudo nix flake update && sudo nixos-rebuild switch --flake .#diller";
+      n = "just --justfile /etc/nixos/justfile --working-directory /etc/nixos";
     };
   };
   home.packages = with pkgs; [

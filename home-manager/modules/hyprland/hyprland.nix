@@ -74,8 +74,8 @@
 
       # General
       general = {
-        gaps_in = 2;
-        gaps_out = 15;
+        gaps_in = 4;
+        gaps_out = 12;
         "col.active_border" = "rgba(ffffffff) rgba(ffffffff) 45deg";
         "col.inactive_border" = "rgba(000000ff)";
         border_size = 2;
@@ -86,62 +86,98 @@
 
       # Decoration
       decoration = {
-        rounding = 5;
+        rounding = 8;
 
         blur = {
-          enabled = false;
-          xray = false;
-          special = false;
-          new_optimizations = true;
-          size = 2;
-          passes = 1;
-          brightness = 1;
-          noise = 0.04;
-          contrast = 1;
-          popups = false;
-          popups_ignorealpha = 0.6;
-          input_methods = true;
-          input_methods_ignorealpha = 0.8;
+          enabled = true;
+          size = 6;
+          passes = 2;
+          noise = 0.01;
+          contrast = 0.9;
+          brightness = 0.9;
+          xray = true;
+          popups = true;
         };
+        # blur = {
+        #           enabled = false;
+        #           xray = false;
+        #           special = false;
+        #           new_optimizations = true;
+        #           size = 2;
+        #           passes = 1;
+        #           brightness = 1;
+        #           noise = 0.04;
+        #           contrast = 1;
+        #           popups = false;
+        #           popups_ignorealpha = 0.6;
+        #           input_methods = true;
+        #           input_methods_ignorealpha = 0.8;
+        #         };
 
+        # shadow = {
+        #   enabled = false;
+        #   # ignore_window = true;
+        #   range = 30;
+        #   offset = "0 2";
+        #   render_power = 4;
+        #   color = "rgba(00000010)";
+        # };
         shadow = {
-          enabled = false;
-          # ignore_window = true;
-          range = 30;
-          offset = "0 2";
-          render_power = 4;
-          color = "rgba(00000010)";
+          enabled = true;
+          range = 20;
+          offset = "0 4";
+          render_power = 3;
+          color = "rgba(00000055)";
         };
-
         dim_inactive = false;
         dim_strength = 0.025;
         dim_special = 0.07;
         active_opacity = 1;
-        inactive_opacity = 0.8;
+        inactive_opacity = 1;
         fullscreen_opacity = 1;
       };
 
       # Animations
       animations = {
         enabled = true;
-
         bezier = [
-          "wind, 0.05, 0.9, 0.1, 1.05"
-          "winIn, 0.1, 1.1, 0.1, 1.0"
-          "winOut, 0.3, -0.3, 0, 1"
+          "silk, 0.25, 1.0, 0.1, 1.0"
+          "silkIn, 0.1, 0.8, 0.1, 1.0"
+          "silkOut, 0.3, 0.0, 0.0, 1.0"
+          "smoothWs, 0.45, 1.0, 0.1, 1.0"
           "instant, 0, 0, 1, 1"
         ];
-
         animation = [
-          "windowsIn, 1, 3, winIn, slide"
-          "windowsOut, 1, 2, winOut, slide"
-          "windowsMove, 1, 3, wind, slide"
-          "border, 1, 5, default"
-          "fade, 1, 4, wind"
-          "workspaces, 1, 0.01, instant"
-          "specialWorkspace, 1, 0.01, instant"
+          "windowsIn, 1, 4, silkIn, slide"
+          "windowsOut, 1, 3, silkOut, slide"
+          "windowsMove, 1, 4, silk, slide"
+          "border, 1, 5, silk"
+          "fade, 1, 4, silk"
+          "fadeIn, 1, 3, silkIn"
+          "fadeOut, 1, 2, silkOut"
+          "workspaces, 1, 4, smoothWs, slidevert"
+          "specialWorkspace, 1, 3, silkOut, slidevert"
         ];
-      };
+      }; # animations = {
+      #         enabled = true;
+
+      #         bezier = [
+      #           "wind, 0.05, 0.9, 0.1, 1.05"
+      #           "winIn, 0.1, 1.1, 0.1, 1.0"
+      #           "winOut, 0.3, -0.3, 0, 1"
+      #           "instant, 0, 0, 1, 1"
+      #         ];
+
+      #         animation = [
+      #           "windowsIn, 1, 3, winIn, slide"
+      #           "windowsOut, 1, 2, winOut, slide"
+      #           "windowsMove, 1, 3, wind, slide"
+      #           "border, 1, 5, default"
+      #           "fade, 1, 4, wind"
+      #           "workspaces, 1, 0.01, instant"
+      #           "specialWorkspace, 1, 0.01, instant"
+      #         ];
+      #       };
 
       # Dwindle
       dwindle = {
@@ -185,8 +221,8 @@
       };
 
       render = {
-        new_render_scheduling = false;
-        direct_scanout = false;
+        new_render_scheduling = true;
+        direct_scanout = true;
       };
 
       debug = {

@@ -15,7 +15,9 @@
     ./modules/niri/niri.nix
     ./modules/qt.nix
     ./modules/helix.nix
-    ./modules/noctalia/noctalia.nix
+    # ./modules/noctalia/noctalia.nix
+    ./modules/hyprland_minimal/hyprland_minimal.nix
+    ./modules/dunst.nix
   ];
 
   programs.home-manager.enable = true;

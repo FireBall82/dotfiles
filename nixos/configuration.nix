@@ -1,7 +1,6 @@
 {
   config,
   inputs,
-  stable,
   lib,
   pkgs,
   ...
@@ -42,6 +41,7 @@
       '';
     };
   };
+
   networking.hostName = "nixos";
   #Enable OpenGL
   hardware.graphics = {
@@ -72,6 +72,9 @@
 
   # Enable networking
   networking.wireless.iwd.enable = true;
+  networking.wireless.iwd.settings = {
+    General.DisablePowerSave = true;
+  };
   # Bluetooth
   hardware.bluetooth = {
     enable = true;
@@ -103,6 +106,7 @@
   };
 
   services.xserver.enable = false;
+  services.tor.enable = true;
   #Required by networking
   security.polkit.enable = true;
   services.gnome.gnome-keyring.enable = true;
@@ -113,6 +117,29 @@
     wayland.enable = true;
     theme = "sddm-astronaut-theme";
     extraPackages = [ pkgs.sddm-astronaut ];
+  };
+  xdg.portal = {
+    enable = true;
+    extraPortals = [
+      pkgs.xdg-desktop-portal-gtk
+      pkgs.xdg-desktop-portal-hyprland
+    ];
+    config = {
+      niri = {
+        default = lib.mkForce [ "gtk" ];
+        "org.freedesktop.impl.portal.Access" = [ "gtk" ];
+        "org.freedesktop.impl.portal.Notification" = [ "gtk" ];
+        "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
+      };
+      hyprland = {
+        default = [
+          "hyprland"
+          "gtk"
+        ];
+        "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
+        "org.freedesktop.impl.portal.Settings" = [ "gtk" ];
+      };
+    };
   };
 
   # Create custom SDDM session for user-installed Hyprland
@@ -133,12 +160,35 @@
         EOF
       ''
     )
+    (pkgs.runCommand "hyprland-minimal-session"
+      {
+        passthru.providedSessions = [ "hyprland-minimal" ];
+      }
+      ''
+        mkdir -p $out/share/wayland-sessions
+        cat > $out/share/wayland-sessions/hyprland-minimal.desktop << EOF
+        [Desktop Entry]
+        Name=Hyprland Minimal
+        Exec=/home/diller/.local/bin/hyprland-minimal
+        Type=Application
+        DesktopNames=Hyprland
+        EOF
+      ''
+    )
   ];
+
   services.power-profiles-daemon.enable = true;
   #Enable flakes
   nix.settings.experimental-features = [
     "nix-command"
     "flakes"
+  ];
+  nix.settings = {
+    http-connections = 50;
+    download-speed = 0; # unlimited
+  };
+  nixpkgs.config.permittedInsecurePackages = [
+    "electron-39.8.10"
   ];
 
   # Enable CUPS to print documents.
@@ -171,8 +221,14 @@
       kdePackages.kolourpaint
     ];
   };
-  # Install firefox.
-  programs.firefox.enable = true;
+  programs.firefox = {
+    # Install firefox.
+    enable = true;
+    policies = {
+      DisableTelemetry = true;
+      DisableFirefoxStudies = true;
+    };
+  };
   #Spicetify
   programs.spicetify =
     let
@@ -183,12 +239,9 @@
 
       enabledExtensions = with spicePkgs.extensions; [
         simpleBeautifulLyrics
-        spicyLyrics
-        powerBar
         adblock
+        spicyLyrics
       ];
-      theme = spicePkgs.themes.catppuccin;
-      colorScheme = "mocha";
     };
 
   #Install steam
@@ -224,9 +277,13 @@
     WLR_DRM_DEVICES = "/dev/dri/card1:/dev/dri/card0"; # Force NVIDIA primary
     QML_DISABLE_DISK_CACHE = "1";
     XDG_SESSION_TYPE = "wayland";
+    GTK_USE_PORTAL = "1";
+    XDG_CURRENT_DESKTOP = "Hyprland";
   };
   fonts.packages = with pkgs; [
     nerd-fonts.jetbrains-mono
+    google-fonts
+    terminus_font
   ];
 
   services.openssh = {
@@ -244,6 +301,15 @@
     maxretry = 3;
   };
   networking.firewall.enable = true;
-  services.tailscale.enable = true;
+  services.tailscale = {
+    enable = true;
+    useRoutingFeatures = "client";
+    extraUpFlags = [ "--accept-dns=false" ];
+  };
+
+  networking.nameservers = [
+    "100.100.100.100"
+    "1.1.1.1"
+  ];
   system.stateVersion = "24.11";
 }

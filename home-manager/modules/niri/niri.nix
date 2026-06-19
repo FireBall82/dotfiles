@@ -27,7 +27,7 @@
 
         mouse {
             // accel-speed 0
-            // accel-profile "flat"
+             accel-profile "flat"
         }
     } 
 
@@ -46,11 +46,11 @@
 
     cursor {
         xcursor-theme "breeze_cursors"
-        xcursor-size 15
+        xcursor-size 20
     }
 
     layout {
-        gaps 5
+        gaps 8
         center-focused-column "never"
 
         preset-column-widths {
@@ -68,7 +68,7 @@
         border {
             on
             width 1
-            active-color "#7fc8ff"
+            active-color "#ffffff"
             inactive-color "#505050"
             urgent-color "#9b0000"
         }
@@ -87,7 +87,7 @@
     screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
     animations {
-        slowdown 1
+        slowdown 0.5
     }
 
     window-rule {

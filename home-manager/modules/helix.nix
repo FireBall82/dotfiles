@@ -12,7 +12,7 @@
         completion-trigger-len = 1;
         color-modes = true;
         indent-guides.render = true;
-        soft-wrap.enable = false;
+        soft-wrap.enable = true;
         cursor-shape = {
           normal = "block";
           insert = "bar";
@@ -52,6 +52,10 @@
       language-server.rust-analyzer = {
         command = "${pkgs.rust-analyzer}/bin/rust-analyzer";
       };
+      language-server.qmlls = {
+        command = "${pkgs.kdePackages.qtdeclarative}/bin/qmlls";
+        config.diagnostics = false;
+      };
       language-server.pyright = {
         command = "${pkgs.pyright}/bin/pyright-langserver";
         args = [ "--stdio" ];
@@ -59,6 +63,9 @@
       language-server.ruff = {
         command = "${pkgs.ruff}/bin/ruff";
         args = [ "server" ];
+      };
+      language-server.just-lsp = {
+        command = "${pkgs.just-lsp}/bin/just-lsp";
       };
       language = [
         {
@@ -85,6 +92,19 @@
           name = "rust";
           auto-format = true;
           formatter.command = "${pkgs.rustfmt}/bin/rustfmt";
+        }
+        {
+          name = "just";
+          auto-format = true;
+          language-servers = [ "just-lsp" ];
+        }
+        {
+          name = "qml";
+          auto-format = true;
+          file-types = [ "qml" ];
+          scope = "source.qml";
+          language-servers = [ "qmlls" ];
+          diagnostic-severity = "error";
         }
       ];
     };

@@ -14,9 +14,9 @@ ShellRoot {
         keepOnReload: true
         onNotification: notif => {
             notifList.append({
-                "summary": notif.summary,
-                "body": notif.body,
-                "appName": notif.appName,
+                "summary": notif.summary ?? "",
+                "body": notif.body ?? "",
+                "appName": notif.appName ?? "",
                 "expireTimeout": notif.expireTimeout
             });
             notif.tracked = true;

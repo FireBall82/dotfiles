@@ -7,22 +7,21 @@
 {
   nixpkgs.config.allowUnfree = true;
   environment.systemPackages = with pkgs; [
+    vim
     wget
     foot
     swayimg
-    inputs.calc.packages.x86_64-linux.default
     pywal
     spotify
-    tgpt
     hyprshot
+    inputs.calc.packages.x86_64-linux.default
     stable.telegram-desktop
-    stable.discord
-    stable.librewolf
     daggerfall-unity
     waypaper
     just
     imv # image viewer
     socat
+    exfatprogs
     hyprcursor
     ollama
     impala
@@ -32,7 +31,6 @@
     bitwarden-desktop
     libnotify
     sddm-astronaut
-    kdePackages.qtmultimedia
     fastfetch
     gamescope
     btop
@@ -44,7 +42,6 @@
     vesktop
     stable.gparted
     obs-studio
-    #hyprland plugins dependencies
     #------:
     cairo
     cpio
@@ -59,25 +56,20 @@
     cava
     waybar
     pywalfox-native
-    stable.zoom-us
-    lenovo-legion
     hyprpaper
     unzip
     redis
     stable.audacity
     man
     fuzzel
-    stable.thunderbird
+    thunderbird
     vscode
     python3
     pavucontrol
     wine64
-    stable.ranger
-    stable.calcurse
     gccgo14
     stable.tree
     stable.curl
-    stable.w3m
     stable.brightnessctl
     tome4
     protonup-qt
@@ -85,9 +77,16 @@
     git
     xwayland-satellite
     subversionClient
-    stable.mako
     stable.clipse
     stable.wl-clipboard
     tor
+    hyperfine
+    torsocks
+    jq
+    devenv
+    pulseaudio
+    android-tools
+    iw
+    dunst
   ];
 }
