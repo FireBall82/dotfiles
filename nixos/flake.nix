@@ -1,5 +1,5 @@
 {
-  description = "flake";
+  description = "Minimal NixOS entrypoint";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
