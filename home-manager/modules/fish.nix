@@ -25,9 +25,6 @@
         return $cmd_status
       '';
     };
-    shellInit = ''
-      set -x GEMINI_API_KEY "AQ.Ab8RN6L4t-NoHui3zxW4hoQ7Mzu3DTIu-2rjmwqKlZXhfGzOYg"
-    '';
     interactiveShellInit = ''
           set fish_greeting # Disable greeting
           # Source pywal colors
