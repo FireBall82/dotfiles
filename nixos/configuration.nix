@@ -7,13 +7,10 @@
 }:
 {
   imports = [
-    inputs.spicetify-nix.nixosModules.default
     ./hardware-configuration.nix
-    ./packages.nix
-    ./overlays/default.nix
+    ../.config/nixos/default.nix
   ];
 
-  # Bootloader.
   boot = {
     loader = {
       systemd-boot.enable = true;

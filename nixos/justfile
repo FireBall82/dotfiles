@@ -1,5 +1,5 @@
 hostname := "diller"
-pkgs_file := "/etc/nixos/packages.nix"
+pkgs_file := "/home/diller/.config/nixos/packages.nix"
 
 # show available commands
 default:
@@ -62,9 +62,9 @@ remove pkg:
 # activate a local overlay for a package
 overlay pkg:
     #!/usr/bin/env bash
-    OVERLAY_FILE="/etc/nixos/overlays/default.nix"
+    OVERLAY_FILE="/home/diller/.config/nixos/overlays/default.nix"
     if [ ! -f "$OVERLAY_FILE" ]; then
-        sudo mkdir -p /etc/nixos/overlays
+        sudo mkdir -p /home/diller/.config/nixos/overlays
         printf '{ ... }:\n{\n  nixpkgs.overlays = [\n  ];\n}\n' | sudo tee "$OVERLAY_FILE" > /dev/null
     fi
     if grep -q "{{ pkg }}" "$OVERLAY_FILE"; then
@@ -82,12 +82,12 @@ overlay pkg:
 # remove a local overlay
 dis-overlay pkg:
     #!/usr/bin/env bash
-    OVERLAY_DIR="/etc/nixos/overlays/{{ pkg }}"
+    OVERLAY_DIR="/home/diller/.config/nixos/overlays/{{ pkg }}"
     if [ -d "$OVERLAY_DIR" ]; then
         sudo rm -rf "$OVERLAY_DIR"
         tmpfile=$(mktemp)
-        grep -v "{{ pkg }}" /etc/nixos/overlays/default.nix > "$tmpfile"
-        sudo cp "$tmpfile" /etc/nixos/overlays/default.nix
+        grep -v "{{ pkg }}" /home/diller/.config/nixos/overlays/default.nix > "$tmpfile"
+        sudo cp "$tmpfile" /home/diller/.config/nixos/overlays/default.nix
         rm "$tmpfile"
         echo "✓ overlay removed for {{ pkg }}"
         just rebuild
@@ -157,7 +157,7 @@ broken:
             echo "  ✗ $pkg"
             FAILED=$((FAILED + 1))
         fi
-    done < <(grep -vE "^\s*#|^\s*$|\{|\}|with pkgs|systemPackages|pkgs,|inputs,|\.\.\.|allowUnfree|legacyPackages|config\.|stable," /etc/nixos/packages.nix \
+    done < <(grep -vE "^\s*#|^\s*$|\{|\}|with pkgs|systemPackages|pkgs,|inputs,|\.\.\.|allowUnfree|legacyPackages|config\.|stable," /home/diller/.config/nixos/packages.nix \
         | sed 's/^\s*//' \
         | sed 's/\s*#.*//' \
         | sed 's/;//' \
@@ -326,8 +326,8 @@ list:
 
             # check if overlay exists to show correct option
             OVERLAY_EXISTS=false
-            [ -f "/etc/nixos/overlays/default.nix" ] && \
-            grep -q "$CLEAN" /etc/nixos/overlays/default.nix 2>/dev/null && \
+            [ -f "/home/diller/.config/nixos/overlays/default.nix" ] && \
+            grep -q "$CLEAN" /home/diller/.config/nixos/overlays/default.nix 2>/dev/null && \
             OVERLAY_EXISTS=true
             if [ "$OVERLAY_EXISTS" = true ]; then
                 OVERLAY_OPTION="dis-overlay"
@@ -417,7 +417,7 @@ list:
                         FILE=$(echo "$POSITION" | cut -d: -f1)
                         LINE=$(echo "$POSITION" | cut -d: -f2)
                         REL=$(echo "$FILE" | sed 's|/nix/store/[^/]*/||')
-                        OVERLAY_DIR="/etc/nixos/overlays/$CLEAN"
+                        OVERLAY_DIR="/home/diller/.config/nixos/overlays/$CLEAN"
                         OVERLAY_FILE="$OVERLAY_DIR/default.nix"
                         if [ ! -f "$OVERLAY_FILE" ]; then
                             echo "  fetching from nixpkgs..."
@@ -469,10 +469,10 @@ list:
                 "dis-overlay")
                     clear
                     echo ""
-                    sudo rm -rf "/etc/nixos/overlays/$CLEAN"
+                    sudo rm -rf "/home/diller/.config/nixos/overlays/$CLEAN"
                     tmpfile=$(mktemp)
-                    grep -v "$CLEAN" /etc/nixos/overlays/default.nix > "$tmpfile"
-                    sudo cp "$tmpfile" /etc/nixos/overlays/default.nix
+                    grep -v "$CLEAN" /home/diller/.config/nixos/overlays/default.nix > "$tmpfile"
+                    sudo cp "$tmpfile" /home/diller/.config/nixos/overlays/default.nix
                     rm "$tmpfile"
                     echo "  ✓ overlay removed for $CLEAN"
                     echo ""
@@ -519,7 +519,7 @@ list:
     clear
     echo ""
     # search your nixos config for any mention of this package
-    MATCHES=$(grep -rn "$CLEAN" /etc/nixos/ \
+    MATCHES=$(grep -rn "$CLEAN" /etc/nixos/ /home/diller/.config/nixos/ \
         --include="*.nix" \
         --exclude-dir=overlays \
         2>/dev/null \
@@ -547,9 +547,9 @@ list:
         read -r -p "  press enter to continue..."
         continue
     fi
-    OVERLAY_DIR="/etc/nixos/overlays/$CLEAN"
+    OVERLAY_DIR="/home/diller/.config/nixos/overlays/$CLEAN"
     OVERLAY_FILE="$OVERLAY_DIR/default.nix"
-    PIN_FILE="/etc/nixos/overlays/pins.nix"
+    PIN_FILE="/home/diller/.config/nixos/overlays/pins.nix"
     # create pins file if it doesn't exist
     if [ ! -f "$PIN_FILE" ]; then
         printf '{ pkgs, ... }:\n{\n  nixpkgs.overlays = [\n    (final: prev: {\n    })\n  ];\n}\n' \
